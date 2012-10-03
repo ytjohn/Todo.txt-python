@@ -16,7 +16,7 @@ not tied to console output. The end result should be usable in a web or IM
 environment. My personal goal is to be able to use this as a module with the
  err_ chatbot.
 
-.. _err : https://github.com/gbin/err
+.. _err: https://github.com/gbin/err
 
 The branch will be unstable for a long time, and the end result may not be
 fully compatible with the master branch (such as with add-on actions).
