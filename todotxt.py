@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-    PyCharm	
-    ~~~~~~
+TODO.TXT-CLI-python
+Copyright (C) 2011-2012  Sigmavirus24, ytjohn
 
-    :copyright: (c) 2011 by ytjohn
-    :license: GPLv3, see LICENSE for more details.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+TLDR: This is licensed under the GPLv3. See LICENSE for more details.
 """
 
 import os
@@ -12,6 +24,13 @@ import re
 import sys
 from optparse import OptionParser
 from datetime import datetime, date
+
+# enable debug logging while coding
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
+
+from usage import Usage as usage
+
 
 class TodoDotTxt():
 
@@ -115,16 +134,17 @@ class TodoDotTxt():
             self.rewrite_file(fd, lines)
         self.post_success(line_no, old_line, new_line)
 
-    def usage(*args):
-        """Set the usage string printed out in ./todo.py help."""
+#    def usage(*args):
+#    v    """Set the usage string printed out in ./todo.py help."""
+#
+#        def usage_decorator(func):
+#            """Function that actually sets the usage string."""
+#            # TODO: supposed to concat a usage string
+#            # func.__usage__ = concat(args, '\n').expandtabs(3)
+#            # func.__usage__ = concat(args, '\n')
+#            return func
+#        return usage_decorator
 
-        def usage_decorator(func):
-            """Function that actually sets the usage string."""
-            # TODO: supposed to concat a usage string
-            # func.__usage__ = concat(args, '\n').expandtabs(3)
-            # func.__usage__ = concat(args, '\n')
-            return func
-        return usage_decorator
 
 
 
@@ -137,7 +157,8 @@ class TodoDotTxt():
         sys.exit(g.status)
 
 
-    @usage('\tpull', '\t\tPulls from your remote git repository.\n')
+    @usage('pull',
+        ['Pulls from your remote git repository.'])
     def _git_pull(self):
         """Equivalent to running git pull on the command line."""
         try:
@@ -147,7 +168,8 @@ class TodoDotTxt():
 
 
 
-    @usage('\tpush', '\t\tPushes to your remote git repository.\n')
+    @usage('push',
+        ['Pushes to your remote git repository.'])
     def _git_push(self):
         """Push commits made locally to the remote."""
         try:
@@ -160,9 +182,9 @@ class TodoDotTxt():
             print("TODO: 'git push' executed.")
 
 
-    @usage('\tstatus',
-        '\t\t"git status" of the repository containing your todo files.',
-        '\t\tRequires git version 1.7.4 or newer.\n')
+    @usage('status',
+        ['"git status" of the repository containing your todo files.',
+         'Requires git version 1.7.4 or newer.'])
     def _git_status(self):
         """Print the status of the local repository if the version of git is 1.7
         or later."""
@@ -172,7 +194,8 @@ class TodoDotTxt():
             print("status only works for git version 1.7.4 or higher.")
 
 
-    @usage('\tlog', '\t\tShows the last five commits in your repository.\n')
+    @usage('log',
+        ['Shows the last five commits in your repository.'])
     def _git_log(self):
         """Print the two latest commits in the local repository's log."""
         print(self.config["GIT"].log("-5", "--oneline"))
@@ -455,10 +478,9 @@ class TodoDotTxt():
 
 
     ### New todo Functions
-    @usage('\tadd | a "Item to do +project @context #{yyyy-mm-dd}"',
-        concat(["\t\tAdds 'Item to do +project @context #{yyyy-mm-dd}'",
-                "to your todo.txt"], ' '), "\t\tfile.",
-        "\t\t+project, @context, #{yyyy-mm-dd} are optional\n")
+    @usage('add | a',
+        ['Adds todo ttem to +project @context #{yyyy-mm-dd}',
+         '+project, @context, #{yyyy-mm-dd} are optional'])
     def add_todo(self, args):
         """Add a new item to the list of things todo."""
         if str(args) == args:
@@ -487,10 +509,10 @@ class TodoDotTxt():
             self._git_commit([self.config["TODO_FILE"]], s)
 
 
-    @usage('\taddm "First item to do +project @context #{yyyy-mm-dd}',
-        '\t\tSecond item to do +project @context #{yyyy-mm-dd}',
-        '\t\t...', '\t\tLast item to do +project @context #{yyyy-mm-dd}',
-        '\t\tAdds each line as a separate item to your todo.txt file.\n')
+#    @usage({'addm "First item to do +project @context #{yyyy-mm-dd}',
+#        'Second item to do +project @context #{yyyy-mm-dd}',
+#        '...', 'Last item to do +project @context #{yyyy-mm-dd}',
+#        'Adds each line as a separate item to your todo.txt file.')
     def addm_todo(self, args):
         """Add new items to the list of things todo."""
         if str(args) == args:
@@ -503,9 +525,9 @@ class TodoDotTxt():
 
 
     ### Start do/del functions
-    @usage('\tdo NUMBER',
-        '\t\tMarks item with corresponding number as done and moves it to',
-        '\t\tyour done.txt file.\n')
+    @usage('do NUMBER',
+        ['Marks item with corresponding number as done and moves it to your '
+         'done.txt file'])
     def do_todo(self, line):
         """Mark an item on a specified line as done."""
         if not line.isdigit():
@@ -535,8 +557,8 @@ class TodoDotTxt():
                 self._git_commit(files, removed)
 
 
-    @usage('\tdel | rm NUMBER', '\t\tDeletes the item on line NUMBER in todo.txt',
-        '')
+#    @usage({'del | rm NUMBER', 'Deletes the item on line NUMBER in todo.txt',
+#        '')
     def delete_todo(self, line):
         """Delete an item without marking it as done."""
         if not line.isdigit():
@@ -581,8 +603,8 @@ class TodoDotTxt():
             self._git_commit([self.config["TODO_FILE"]], print_str)
 
 
-    @usage('\tappend | app NUMBER "text to append"',
-        '\t\tAppend "text to append" to item NUMBER.\n')
+#    @usage({'append | app NUMBER "text to append"',
+#        'Append "text to append" to item NUMBER.')
     def append_todo(self, args):
         """Append text to the item specified."""
         if args[0].isdigit():
@@ -600,8 +622,8 @@ class TodoDotTxt():
             self.post_error('append', 'NUMBER', 'string')
 
 
-    @usage('\tpri | p NUMBER [A-X]',
-        '\t\tAdd priority specified (A, B, C, etc.) to item NUMBER.\n')
+#    @usage({'pri | p NUMBER [A-X]',
+#        'Add priority specified (A, B, C, etc.) to item NUMBER.')
     def prioritize_todo(self, args):
         """Add or modify the priority of the specified item."""
         args = [arg.upper() for arg in args]
@@ -625,8 +647,8 @@ class TodoDotTxt():
             self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
 
 
-    @usage('\tdepri | dp NUMBER',
-        '\t\tRemove the priority of the item on line NUMBER.\n')
+#    @usage({'depri | dp NUMBER',
+#        'Remove the priority of the item on line NUMBER.')
     def de_prioritize_todo(self, number):
         """Remove priority markings from the beginning of the line if they're
         there. Don't complain otherwise."""
@@ -644,8 +666,8 @@ class TodoDotTxt():
             self.post_error('depri', 'NUMBER', None)
 
 
-    @usage('\tprepend | pre NUMBER "text to prepend"',
-        '\t\tAdd "text to prepend" to the beginning of the item.\n')
+#    @usage({'prepend | pre NUMBER "text to prepend"',
+#        'Add "text to prepend" to the beginning of the item.')
     def prepend_todo(self, args):
         """Take in the line number and prepend the rest of the arguments to the
         item specified by the line number."""
@@ -672,8 +694,8 @@ class TodoDotTxt():
 
 
     ### HELP
-    @usage('\thelp | h',
-        '\t\tDisplay this message and exit.\n')
+#    @usage({'help | h',
+#        'Display this message and exit.')
     def cmd_help(self):
         print(
         self.concat(["Use", self.config["TODO_PY"], "-h for option help\n"], " "))
@@ -828,8 +850,8 @@ class TodoDotTxt():
         self.print_x_of_y(lines, alines)
 
 
-    @usage('\tlist | ls',
-        '\t\tLists all items in your todo.txt file sorted by priority.\n')
+#    @usage({'list | ls',
+#        'Lists all items in your todo.txt file sorted by priority.')
     def list_todo(self, args=None, plain=False, no_priority=False):
         """Print the list of todo items in order of priority and position in the
         todo.txt file."""
@@ -841,9 +863,9 @@ class TodoDotTxt():
             self._list_by_(*args)
 
 
-    @usage('\tlistall | lsa',
-        '\t\tLists all items in your todo.txt file sorted by priority followed',
-        '\t\tby the items in your done.txt file.\n')
+#    @usage({'listall | lsa',
+#        'Lists all items in your todo.txt file sorted by priority followed',
+#        'by the items in your done.txt file.')
     def list_all(self):
         """Print the list of todo items in order of priority and then print the
         done.txt file."""
@@ -856,8 +878,8 @@ class TodoDotTxt():
         self.print_x_of_y(lines, lines)
 
 
-    @usage('\tlistdate | lsd',
-        '\t\tLists all items in your todo.txt file sorted by date.\n')
+#    @usage({'listdate | lsd',
+#        'Lists all items in your todo.txt file sorted by date.')
     def list_date(self):
         """List todo items by date #{yyyy-mm-dd}."""
         lines, sorted = self._list_("date", "#\{(\d{4})-(\d{1,2})-(\d{1,2})\}")
@@ -865,8 +887,8 @@ class TodoDotTxt():
         self.print_x_of_y(sorted, lines)
 
 
-    @usage('\tlistproj | lsp',
-        '\t\tLists all items in your todo.txt file sorted by project title.\n')
+#    @usage({'listproj | lsp',
+#        'Lists all items in your todo.txt file sorted by project title.')
     def list_project(self):
         """Organizes items by project +prj they belong to."""
         lines, sorted = self._list_("project", "\+(\w+)")
@@ -874,8 +896,8 @@ class TodoDotTxt():
         self.print_x_of_y(sorted, lines)
 
 
-    @usage('\tlistcon | lsc',
-        '\t\tLists all items in your todo.txt file sorted by context.\n')
+#    @usage({'listcon | lsc',
+#        'Lists all items in your todo.txt file sorted by context.')
     def list_context(self):
         """Organizes items by context @context associated with them."""
         lines, sorted = self._list_("context", "@(\w+)")

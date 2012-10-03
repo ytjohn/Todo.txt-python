@@ -19,11 +19,13 @@
 # TLDR: This is licensed under the GPLv3. See LICENSE for more details.
 
 import os
-# import re
 import sys
-# from optparse import OptionParser
-# from datetime import datetime, date
 from todotxt import TodoDotTxt
+import logging
+
+# enable debug logging while coding
+# logging.basicConfig(level=logging.DEBUG)# enable debug logging
+logging.basicConfig(level=logging.DEBUG)
 
 version = "development"
 revision = "$Id$"
@@ -126,10 +128,10 @@ if __name__ == "__main__":
 
     if config["USE_GIT"]:
         DoToDo.update_commands(
-                [("push", 	(False, _git_push)),
-                ("pull", 	(False, _git_pull)),
-                ("status", 	(False, _git_status)),
-                ("log", 	(False, _git_log))]
+            [("push", (False, DoToDo._git_push)),
+             ("pull", (False, DoToDo._git_pull)),
+             ("status", (False, DoToDo._git_status)),
+             ("log", (False, DoToDo._git_log))]
                 )
 
     if config["ACTIONS"]:
