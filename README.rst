@@ -1,8 +1,7 @@
 todo.py
 =======
 
-.. image:: https://secure.travis-ci.org/ytjohn/Todo.txt-python
-.png?branch=splitintoclass
+.. image:: https://secure.travis-ci.org/ytjohn/Todo.txt-python.png?branch=splitintoclass
     :alt: Build Status
 
 A port of the `popular todo.txt-cli project
