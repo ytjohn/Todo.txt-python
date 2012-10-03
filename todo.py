@@ -128,10 +128,10 @@ if __name__ == "__main__":
 
     if config["USE_GIT"]:
         DoToDo.update_commands(
-            [("push", (False, DoToDo._git_push)),
-             ("pull", (False, DoToDo._git_pull)),
-             ("status", (False, DoToDo._git_status)),
-             ("log", (False, DoToDo._git_log))]
+                [("push", 	(False, DoToDo._git_push)),
+                ("pull", 	(False, DoToDo._git_pull)),
+                ("status", 	(False, DoToDo._git_status)),
+                ("log", 	(False, DoToDo._git_log))]
                 )
 
     if config["ACTIONS"]:
