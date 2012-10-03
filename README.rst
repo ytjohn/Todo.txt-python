@@ -1,7 +1,8 @@
 todo.py
 =======
 
-.. image:: https://secure.travis-ci.org/sigmavirus24/Todo.txt-python.png?branch=development
+.. image:: https://secure.travis-ci.org/ytjohn/Todo.txt-python
+.png?branch=splitintoclass
     :alt: Build Status
 
 A port of the `popular todo.txt-cli project
@@ -14,9 +15,9 @@ This will feature a complete rewrite of the script, breaking it out into
 classes. My ideal goal is to make an "environment independent" class that is
 not tied to console output. The end result should be usable in a web or IM
 environment. My personal goal is to be able to use this as a module with the
- err_ chatbot.
+ `gbin/err`_ chatbot.
 
-.. _err: https://github.com/gbin/err
+.. _gbin/err: https://github.com/gbin/err
 
 The branch will be unstable for a long time, and the end result may not be
 fully compatible with the master branch (such as with add-on actions).
