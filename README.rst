@@ -7,6 +7,18 @@ todo.py
 A port of the `popular todo.txt-cli project
 <https://github.com/ginatrapani/todo.txt-cli>`_ from bash to python.
 
+Information About This Branch
+-----------------------------
+
+This will feature a complete rewrite of the script, breaking it out into
+classes. My ideal goal is to make an "environment independent" class that is
+not tied to console output. The end result should be usable in a web or IM
+environment. My personal goal is to be able to use this as a module with the
+ [err chatbot]<https://github.com/gbin/err>.
+
+The branch will be unstable for a long time, and the end result may not be
+fully compatible with the master branch (such as with add-on actions).
+
 Dependencies
 ------------
 
