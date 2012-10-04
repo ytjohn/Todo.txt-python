@@ -19,11 +19,13 @@
 import todo
 import base
 import unittest
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
 
 class TestUsage(base.BaseTest):
 
     def test_usage(self):
-        @todo.usage('Test usage')
+        @t.usage('test', ['Test usage'])
         def func():
             pass
 

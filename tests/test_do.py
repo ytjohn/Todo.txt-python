@@ -21,16 +21,18 @@ import unittest
 
 import base
 import todo
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
 
 class DoTest(base.BaseTest):
 
     def test_do(self):
-        todo.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
+        t.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
         ran = random.Random()
 
         for i in range(self.num, 0, -1):
             j = ran.randint(1, i)
-            todo.do_todo(str(j))
+            t.do_todo(str(j))
             #todo.do_todo(str(i))
 
         self.assertNumLines(0)

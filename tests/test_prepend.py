@@ -19,14 +19,16 @@
 import unittest
 import base
 import todo
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
 
 class PrependTest(base.BaseTest):
 
     def test_prepend(self):
-        todo.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
+        t.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
 
         for i in range(1, self.num + 1):
-            todo.prepend_todo([str(i), "testing", "prepend"])
+            t.prepend_todo([str(i), "testing", "prepend"])
 
         self.assertNumLines(self.num, "testing\sprepend\sTest\s\d+")
 

@@ -20,13 +20,16 @@ import unittest
 import base
 import todo
 
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
+
 class AppendTest(base.BaseTest):
 
     def test_append(self):
-        todo.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
+        t.addm_todo("\n".join(self._test_lines_no_pri(self.num)))
 
         for i in range(1, self.num + 1):
-            todo.append_todo([str(i), "testing", "append"])
+            t.append_todo([str(i), "testing", "append"])
 
         self.assertNumLines(self.num, "Test\s\d+\stesting\sappend")
 

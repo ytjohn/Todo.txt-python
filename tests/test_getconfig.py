@@ -21,6 +21,9 @@ import base
 import re
 import os
 from functools import partial
+from todotxt import TodoDotTxt
+import logging
+t = TodoDotTxt(todo.config)
 
 class TestConfig(base.BaseTest):
 
@@ -31,10 +34,15 @@ class TestConfig(base.BaseTest):
         super(TestConfig, self).setUp()
 
     def tearDown(self):
-        todo.CONFIG = self.backup
+        t.config = self.backup
 
     def config_assert(self, key, val):
-        self.assertEquals(todo.CONFIG[key], val)
+        logging.info("\n")
+        logging.info("asserted k: %s v: %s" % (key, val))
+        logging.info("from config:%s assert:%s" % (t.config[key], val))
+
+
+        self.assertEquals(t.config[key], val)
 
     def _validate_(self, filename):
         filename = self.sub(filename)
@@ -43,6 +51,7 @@ class TestConfig(base.BaseTest):
                 if line.startswith('#') or line == '\n':
                     continue
                 key, val = line.split()
+                logging.info("k,v: %s,%s" % (key, val))
                 if val == "False":
                     val = False
                 elif val == "True":
@@ -50,13 +59,15 @@ class TestConfig(base.BaseTest):
                 self.config_assert(key, val)
 
     def test_configs(self):
-        self.backup = todo.CONFIG.copy()
+        self.backup = t.config.copy()
         self.environ = os.environ.copy()
         for f in os.listdir('tests/config/'):
             if f.endswith('config'):
                 f = ''.join(['tests/config/', f])
-                todo.get_config(config_name=f)
+                logging.info("f: %s" % f)
+                t.get_config(config_name=f)
+                logging.info("1: %s" % t.config)
                 self._validate_(f)
-                todo.CONFIG = self.backup.copy()
+                t.config = self.backup.copy()
                 os.environ = self.environ.copy()
 

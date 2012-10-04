@@ -26,9 +26,11 @@ import unittest
 sys.path.insert(0, '..')
 
 import todo
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
 
-todotxt = todo.CONFIG["TODO_FILE"] = "test_todo.txt"
-donetxt = todo.CONFIG["DONE_FILE"] = "test_done.txt"
+todotxt = todo.config["TODO_FILE"] = "test_todo.txt"
+donetxt = todo.config["DONE_FILE"] = "test_done.txt"
 
 class BaseTest(unittest.TestCase):
     num = 50
@@ -37,8 +39,8 @@ class BaseTest(unittest.TestCase):
         pass
 
     def setUp(self):
-        todo.CONFIG["PRE_DATE"] = False
-        todo.CONFIG["TODO_PY"] = "testing"
+        todo.config["PRE_DATE"] = False
+        todo.config["TODO_PY"] = "testing"
         todo.default_config = self.default_config
         sys.stdout = open(os.devnull, 'w')
         open(todotxt, "w+").close()
@@ -55,7 +57,7 @@ class BaseTest(unittest.TestCase):
 
     def count_matches(self, regexp=None):
         count = 0
-        for line in todo.iter_todos():
+        for line in t.iter_todos():
             if regexp == None or re.match(regexp, line):
                 count += 1
         return count
@@ -66,8 +68,8 @@ class BaseTest(unittest.TestCase):
 
 
     def _test_lines_pri(self, num):
-        n = len(todo.PRIORITIES)
-        p = todo.PRIORITIES
+        n = len(todo.priorities)
+        p = todo.priorities
         return ["({0}) Test {1}".format(p[i % n], i) for i in range(0, num)]
 
 

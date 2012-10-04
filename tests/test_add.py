@@ -20,6 +20,8 @@ import os
 import todo
 import base
 import unittest
+from todotxt import TodoDotTxt
+t = TodoDotTxt(todo.config)
 
 class TestAdd(base.BaseTest):
 
@@ -32,17 +34,17 @@ class TestAdd(base.BaseTest):
         self.assertNumLines(self.num, "\d{4}-\d{2}-\d{2}.*Test \d+")
 
     def test_add_nofile(self):
-        os.unlink(todo.CONFIG["TODO_FILE"])
+        os.unlink(todo.config["TODO_FILE"])
         self.test_add()
 
     def add_todo(self, n):
         lines = self._test_lines_no_pri(n)
         for line in lines:
-            todo.add_todo(line)
+            t.add_todo(line)
 
     def add_todo_predate(self, n):
-        _pre = todo.CONFIG["PRE_DATE"]
-        todo.CONFIG["PRE_DATE"] = True
+        _pre = todo.config["PRE_DATE"]
+        todo.config["PRE_DATE"] = True
         self.add_todo(n)
 
 if __name__ == "__main__":

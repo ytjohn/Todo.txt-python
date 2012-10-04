@@ -21,24 +21,27 @@ import re
 
 import todo
 import base
+from todotxt import TodoDotTxt
+
+t = TodoDotTxt(todo.config)
 
 class TestFormat(base.BaseTest):
 
     def _generate_re_dictionary(self, with_lookbehind=False):
         rd = {}
         esc = re.escape
-        colors = todo.TERM_COLORS
+        colors = t.config['TERM_COLORS']
         default = esc(colors["default"])
-        concat = todo.concat
+        concat = t.concat
 
         if not with_lookbehind:
-            for p in todo.PRIORITIES[:-1]:
-                color = todo.CONFIG["PRI_{0}".format(p)]
+            for p in todo.priorities[:-1]:
+                color = t.config["PRI_{0}".format(p)]
                 rd[p] = re.compile(concat([esc(colors[color]), 
                     "\d+ (\({0}\)) .*".format(p), default]))
         else:
-            for p in todo.PRIORITIES[:-1]:
-                color = todo.CONFIG["PRI_{0}".format(p)]
+            for p in todo.priorities[:-1]:
+                color = t.config["PRI_{0}".format(p)]
                 rd[p] = re.compile(concat([esc(colors[color]), 
                     "\d+ (?!\({0}\)).*".format(p), default]))
                 # If there is a priority listed ([A-X]), the match will fail on
@@ -50,49 +53,50 @@ class TestFormat(base.BaseTest):
 
     def setUp(self):
         i = 0
-        for k in todo.TERM_COLORS.keys():
+        for k in todo.term_colors.keys():
             if k not in ("default", "reverse", "bold"):
-                todo.CONFIG["PRI_{0}".format(todo.PRIORITIES[i])] = k
+                t.config["PRI_{0}".format(todo.priorities[i])] = k
                 i += 1
-        for k in todo.PRIORITIES[i:]:
-            todo.CONFIG["PRI_{0}".format(k)] = "default"
+        for k in todo.priorities[i:]:
+            t.config["PRI_{0}".format(k)] = "default"
         super(TestFormat, self).setUp()
 
 
     def test_formatted(self):
         self.addm_todo_with_pri(self.num)
-        lines = todo.format_lines()
+        lines = t.format_lines()
         self.assert_formatted(lines)
 
 
     def test_color_only(self):
+        t.config["PLAIN"] = False
         self.addm_todo_with_pri(self.num)
-        lines = todo.format_lines(True)
+        lines = t.format_lines(True)
         self.assert_color_only(lines)
 
 
     def test_formatted_remove_pri(self):
-        todo.CONFIG["NO_PRI"] = True
+        t.config["NO_PRI"] = True
         self.addm_todo_with_pri(self.num)
-        lines = todo.format_lines()
+        lines = t.format_lines()
         self.assert_nopri(lines)
 
 
     def test_plain(self):
-        todo.CONFIG["PLAIN"] = True
+        t.config["PLAIN"] = True
         self.addm_todo_with_pri(self.num)
-        lines = todo.format_lines()
+        lines = t.format_lines()
         self.assert_plain(lines, dict)
-        lines = todo.format_lines(True)
+        lines = t.format_lines(True)
         self.assert_plain(lines, list)
 
 
     def addm_todo_no_pri(self, n):
-        todo.addm_todo("\n".join(self._test_lines_no_pri(n)))
+        t.addm_todo("\n".join(self._test_lines_no_pri(n)))
 
 
     def addm_todo_with_pri(self, n):
-        todo.addm_todo("\n".join(self._test_lines_pri(n)))
+        t.addm_todo("\n".join(self._test_lines_pri(n)))
 
 
     def assert_formatted(self, lines):
@@ -104,14 +108,14 @@ class TestFormat(base.BaseTest):
 
         keys = list(lines.keys())
         keys.sort()
-        self.assertEqual(todo.concat(keys), todo.PRIORITIES)
+        self.assertEqual(t.concat(keys), todo.priorities)
 
         color_dict = self._generate_re_dictionary()
 
         for k, v in lines.items():
             for line in v:
                 self.assertIsNotNone(color_dict[k].match(line),
-                        todo.concat([k, line], " "))
+                        t.concat([k, line], " "))
 
 
     def assert_color_only(self, lines):
@@ -125,7 +129,8 @@ class TestFormat(base.BaseTest):
         for line in lines:
             line = line.strip()
             p = priority.sub("\g<1>", line)
-            self.assertIsNotNone(re_dict[p].match(line), todo.concat([p, line], 
+            self.assertIsNotNone(re_dict[p].match(line),
+                todo.concat([p, line],
                 " "))
 
 
@@ -153,13 +158,13 @@ class TestFormat(base.BaseTest):
 
         keys = list(lines.keys())
         keys.sort()
-        self.assertEqual(todo.concat(keys), todo.PRIORITIES)
+        self.assertEqual(t.concat(keys), todo.priorities)
 
         color_dict = self._generate_re_dictionary(True)
 
         for k, v in lines.items():
             for line in v:
-                self.assertIsNotNone(color_dict[k].match(line), todo.concat([k,
+                self.assertIsNotNone(color_dict[k].match(line), t.concat([k,
                     line], " "))
 
 
