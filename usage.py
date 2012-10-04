@@ -34,11 +34,21 @@ class Usage(object):
     def __init__(self, name, lines):
         self.name = name
         self.lines = lines
-        concat = lambda str_list, sep='': sep.join([str(i) for i in str_list])
+        self.usage = {}
+        # concat = lambda str_list, sep='': sep.join([str(i) for i in
+        # str_list])
 
     def __call__(self, *args, **kwargs):
-        logging.debug("%s: " % self.name)
         # print "%s: " % self.name
-        for line in self.lines:
-            logging.debug("name %s :: %s" % (self.name, line))
-            # print "\t%s" % line
+        # for line in self.lines:
+        #    print "\t%s" % line
+        logging.debug("calling function: %s" % __name__)
+
+        def usage_decorator(self, func):
+            """Function that actually sets the usage string."""
+            logging.debug("real calling func: %s" % __package__)
+            return func
+
+        return __name__
+
+

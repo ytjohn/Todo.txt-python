@@ -1,4 +1,4 @@
-import re, datetime
+    import re, datetime
 from todo import usage, iter_todos, CONFIG, concat, _git_commit
 from todo import format_lines, PRIORITIES, prioritize_todo, print_x_of_y
 

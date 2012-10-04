@@ -119,7 +119,8 @@ del(p, todo_dir)
 
 
 if __name__ == "__main__":
-    config["TODO_PY"] = sys.argv[0]
+
+    DoToDo.config["TODO_PY"] = sys.argv[0]
     opts = DoToDo.opt_setup()
 
     valid, args = opts.parse_args()

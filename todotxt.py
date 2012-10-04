@@ -26,11 +26,13 @@ from optparse import OptionParser
 from datetime import datetime, date
 
 # enable debug logging while coding
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
-from usage import Usage as usage
+# from usage import Usage as usage
 
+concat = lambda str_list, sep='': sep.join([str(i) for i in
+                                            str_list])
 
 class TodoDotTxt():
 
@@ -83,6 +85,7 @@ class TodoDotTxt():
         self.commands.update(newcommands)
         return self.commands
 
+
     def todo_padding(self, include_done=False):
         lines = [line for line in self.iter_todos(include_done)]
         i = len(lines)
@@ -114,7 +117,10 @@ class TodoDotTxt():
         invalid separate = None, lines != None."""
         lines = [line for line in self.iter_todos()]
         separate = None
-        if lines and len(lines) > 1 - number >= 0:
+        # logging.debug("length: %d number: %d" % (len(lines), number))
+        # logging.debug("val: %d" % (1 - number))
+        if lines and number - 1 < len(lines) and 0 <= number - 1:
+            # logging.debug("separate_line in here")
             separate = lines.pop(number - 1)
         return separate, lines
 
@@ -134,16 +140,16 @@ class TodoDotTxt():
             self.rewrite_file(fd, lines)
         self.post_success(line_no, old_line, new_line)
 
-#    def usage(*args):
-#    v    """Set the usage string printed out in ./todo.py help."""
-#
-#        def usage_decorator(func):
-#            """Function that actually sets the usage string."""
-#            # TODO: supposed to concat a usage string
-#            # func.__usage__ = concat(args, '\n').expandtabs(3)
-#            # func.__usage__ = concat(args, '\n')
-#            return func
-#        return usage_decorator
+
+
+    def usage(name, lines):
+        """Set the usage string printed out in ./todo.py help."""
+        def usage_decorator(func):
+            """Function that actually sets the usage string."""
+
+            func.__usage__ = concat(lines, '\n').expandtabs(3)
+            return func
+        return usage_decorator
 
 
 
@@ -237,7 +243,7 @@ class TodoDotTxt():
             print(t_str.format(len(x), len(y)))
 
 
-    def test_separated(removed, lines, line_no):
+    def test_separated(self, removed, lines, line_no):
         if not (removed or lines):
             print("{0}: No such todo.".format(line_no))
             return True
@@ -274,6 +280,7 @@ class TodoDotTxt():
             config_file = self.config["TODOTXT_CFG_FILE"]
 
         config_file = self._path(config_file)
+        logging.debug("config file: %s" % config_file)
         perms = os.F_OK | os.R_OK | os.W_OK
         if not (os.access(self.config["TODO_DIR"], perms | os.X_OK) and
                 os.access(config_file, perms)) and\
@@ -477,6 +484,7 @@ class TodoDotTxt():
     ### End Config Functions
 
 
+
     ### New todo Functions
     @usage('add | a',
         ['Adds todo ttem to +project @context #{yyyy-mm-dd}',
@@ -509,10 +517,11 @@ class TodoDotTxt():
             self._git_commit([self.config["TODO_FILE"]], s)
 
 
-#    @usage({'addm "First item to do +project @context #{yyyy-mm-dd}',
-#        'Second item to do +project @context #{yyyy-mm-dd}',
-#        '...', 'Last item to do +project @context #{yyyy-mm-dd}',
-#        'Adds each line as a separate item to your todo.txt file.')
+    @usage('addm',
+        ['First item to do +project @context #{yyyy-mm-dd}',
+        'Second item to do +project @context #{yyyy-mm-dd}',
+        '...', 'Last item to do +project @context #{yyyy-mm-dd}',
+        'Adds each line as a separate item to your todo.txt file.'])
     def addm_todo(self, args):
         """Add new items to the list of things todo."""
         if str(args) == args:
@@ -525,15 +534,21 @@ class TodoDotTxt():
 
 
     ### Start do/del functions
-    @usage('do NUMBER',
-        ['Marks item with corresponding number as done and moves it to your '
-         'done.txt file'])
+#    @usage('do NUMBER',
+#        ['Marks item with corresponding number as done and moves it to your '
+#         'done.txt file'])
     def do_todo(self, line):
         """Mark an item on a specified line as done."""
+
         if not line.isdigit():
+            # logging.debug("do_todo digit x: %s" % line)
             print("Usage: {0} do item#".format(self.config["TODO_PY"]))
         else:
+            # logging.debug("do_todo string x: %s" % line)
             removed, lines = self.separate_line(int(line))
+            # logging.debug("lines: %s" % lines)
+            # logging.debug("removed %s" % removed)
+
             if self.test_separated(removed, lines, line):
                 return
 
@@ -557,8 +572,8 @@ class TodoDotTxt():
                 self._git_commit(files, removed)
 
 
-#    @usage({'del | rm NUMBER', 'Deletes the item on line NUMBER in todo.txt',
-#        '')
+    @usage('del | rm NUMBER',
+            ['Deletes the item on line NUMBER in todo.txt'])
     def delete_todo(self, line):
         """Delete an item without marking it as done."""
         if not line.isdigit():
@@ -603,8 +618,9 @@ class TodoDotTxt():
             self._git_commit([self.config["TODO_FILE"]], print_str)
 
 
-#    @usage({'append | app NUMBER "text to append"',
-#        'Append "text to append" to item NUMBER.')
+    @usage('append | app NUMBER',
+        ['text to append',
+        'Append "text to append" to item NUMBER.'])
     def append_todo(self, args):
         """Append text to the item specified."""
         if args[0].isdigit():
@@ -622,8 +638,8 @@ class TodoDotTxt():
             self.post_error('append', 'NUMBER', 'string')
 
 
-#    @usage({'pri | p NUMBER [A-X]',
-#        'Add priority specified (A, B, C, etc.) to item NUMBER.')
+    @usage('pri | p NUMBER [A-X]',
+        ['Add priority specified (A, B, C, etc.) to item NUMBER.'])
     def prioritize_todo(self, args):
         """Add or modify the priority of the specified item."""
         args = [arg.upper() for arg in args]
@@ -647,8 +663,8 @@ class TodoDotTxt():
             self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
 
 
-#    @usage({'depri | dp NUMBER',
-#        'Remove the priority of the item on line NUMBER.')
+    @usage('depri | dp NUMBER',
+        ['Remove the priority of the item on line NUMBER.'])
     def de_prioritize_todo(self, number):
         """Remove priority markings from the beginning of the line if they're
         there. Don't complain otherwise."""
@@ -666,8 +682,9 @@ class TodoDotTxt():
             self.post_error('depri', 'NUMBER', None)
 
 
-#    @usage({'prepend | pre NUMBER "text to prepend"',
-#        'Add "text to prepend" to the beginning of the item.')
+#    @usage('prepend | pre NUMBER',
+#        ['text to prepend',
+#        'Add "text to prepend" to the beginning of the item NUMBER.'])
     def prepend_todo(self, args):
         """Take in the line number and prepend the rest of the arguments to the
         item specified by the line number."""
@@ -694,8 +711,8 @@ class TodoDotTxt():
 
 
     ### HELP
-#    @usage({'help | h',
-#        'Display this message and exit.')
+    @usage('help | h',
+        ['Display this message and exit.'])
     def cmd_help(self):
         print(
         self.concat(["Use", self.config["TODO_PY"], "-h for option help\n"], " "))
@@ -706,6 +723,7 @@ class TodoDotTxt():
             d[val[1]] = (key, val[1])
             # By using the function, only one command name will be added
         cmds = sorted(d.values())  # Only get the tuples
+        # TODO: have this use the usage class
         for (_, f) in cmds:
             print(f.__usage__)
         sys.exit(0)
@@ -850,8 +868,8 @@ class TodoDotTxt():
         self.print_x_of_y(lines, alines)
 
 
-#    @usage({'list | ls',
-#        'Lists all items in your todo.txt file sorted by priority.')
+    @usage('list | ls',
+        ['Lists all items in your todo.txt file sorted by priority.'])
     def list_todo(self, args=None, plain=False, no_priority=False):
         """Print the list of todo items in order of priority and position in the
         todo.txt file."""
@@ -863,9 +881,9 @@ class TodoDotTxt():
             self._list_by_(*args)
 
 
-#    @usage({'listall | lsa',
-#        'Lists all items in your todo.txt file sorted by priority followed',
-#        'by the items in your done.txt file.')
+    @usage('listall | lsa',
+        ['Lists all items in your todo.txt file sorted by priority followed',
+        'by the items in your done.txt file.'])
     def list_all(self):
         """Print the list of todo items in order of priority and then print the
         done.txt file."""
@@ -878,8 +896,8 @@ class TodoDotTxt():
         self.print_x_of_y(lines, lines)
 
 
-#    @usage({'listdate | lsd',
-#        'Lists all items in your todo.txt file sorted by date.')
+    @usage('listdate | lsd',
+        ['Lists all items in your todo.txt file sorted by date.'])
     def list_date(self):
         """List todo items by date #{yyyy-mm-dd}."""
         lines, sorted = self._list_("date", "#\{(\d{4})-(\d{1,2})-(\d{1,2})\}")
@@ -887,8 +905,8 @@ class TodoDotTxt():
         self.print_x_of_y(sorted, lines)
 
 
-#    @usage({'listproj | lsp',
-#        'Lists all items in your todo.txt file sorted by project title.')
+    @usage('listproj | lsp',
+        ['Lists all items in your todo.txt file sorted by project title.'])
     def list_project(self):
         """Organizes items by project +prj they belong to."""
         lines, sorted = self._list_("project", "\+(\w+)")
@@ -896,8 +914,8 @@ class TodoDotTxt():
         self.print_x_of_y(sorted, lines)
 
 
-#    @usage({'listcon | lsc',
-#        'Lists all items in your todo.txt file sorted by context.')
+    @usage('listcon | lsc',
+        ['Lists all items in your todo.txt file sorted by context.'])
     def list_context(self):
         """Organizes items by context @context associated with them."""
         lines, sorted = self._list_("context", "@(\w+)")
@@ -1046,6 +1064,11 @@ class TodoDotTxt():
                 commands[arg][1]()
             else:
                 if all_re.match(arg) or arg in all_set:
+
+                    logging.debug("execute_commands all_re.match")
+                    logging.debug("arg:%s arg[1]%s args:%s" % (arg,
+                                                               arg[1],
+                                                               args))
                     commands[arg][1](args)
                     args = None
                 else:
