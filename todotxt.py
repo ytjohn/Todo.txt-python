@@ -147,7 +147,9 @@ class TodoDotTxt():
         def usage_decorator(func):
             """Function that actually sets the usage string."""
 
-            func.__usage__ = concat(lines, '\n').expandtabs(3)
+            # func.__usage__ = concat(lines, '\n').expandtabs(3)
+            func.__command__ = name
+            func.__usage__ = lines
             return func
         return usage_decorator
 
@@ -534,9 +536,9 @@ class TodoDotTxt():
 
 
     ### Start do/del functions
-#    @usage('do NUMBER',
-#        ['Marks item with corresponding number as done and moves it to your '
-#         'done.txt file'])
+    @usage('do NUMBER',
+        ['Marks item with corresponding number as done and moves it to your '
+         'done.txt file'])
     def do_todo(self, line):
         """Mark an item on a specified line as done."""
 
@@ -682,9 +684,10 @@ class TodoDotTxt():
             self.post_error('depri', 'NUMBER', None)
 
 
-#    @usage('prepend | pre NUMBER',
-#        ['text to prepend',
-#        'Add "text to prepend" to the beginning of the item NUMBER.'])
+
+    @usage('prepend | pre NUMBER',
+        ['text to prepend',
+        'Add "text to prepend" to the beginning of the item NUMBER.'])
     def prepend_todo(self, args):
         """Take in the line number and prepend the rest of the arguments to the
         item specified by the line number."""
@@ -926,7 +929,7 @@ class TodoDotTxt():
 
     ### Callback functions for options
     def version(self, option, opt, value, parser):
-        print("""TODO.TXT Command Line Interface v{version}-{id}
+        print("""TODO.TXT Command Line Interface v:{version}-{id}
 
     First release:
     Original conception by: Gina Trapani (http://ginatrapani.org)

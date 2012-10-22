@@ -10,12 +10,14 @@ A port of the `popular todo.txt-cli project
 Information About This Branch
 -----------------------------
 
+usecmd - I'm rewriting the command line front end to use Python's cmd.cmd
+module. This will allow for an interactive shell or CLI access.
+
 This will feature a complete rewrite of the script, breaking it out into
 classes. My ideal goal is to make an "environment independent" class that is
 not tied to console output. The end result should be usable in a web or IM
 environment. My personal goal is to be able to use this as a module with the
 `gbin/err: <https://github.com/gbin/err>`_ chatbot.
-
 
 The branch will be unstable for a long time, and the end result may not be
 fully compatible with the master branch (such as with add-on actions).
