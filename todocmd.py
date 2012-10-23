@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    PyCharm	
+    PyCharm
     ~~~~~~
 
     :copyright: (c) 2011 by ytjohn
@@ -17,7 +17,8 @@ revision = "$Id$"
 import os
 import cmd
 import  sys
-from textwrap import TextWrapper
+from optparse import OptionParser
+import textwrap
 from todotxt import TodoDotTxt
 
 
@@ -44,7 +45,7 @@ term_colors = {
     "light cyan": "\033[1;36m", "white": "\033[1;37m",
     "default": "\033[0m", "reverse": "\033[7m",
     "bold": "\033[1m",
-    }
+}
 
 todo_dir = _path("~/.todo")
 config = {
@@ -56,7 +57,7 @@ config = {
     "TMP_FILE": "",
     "REPORT_FILE": "",
     "USE_GIT": False,
-    "PLAIN": False,
+    "PLAIN": True,
     "NO_PRI": False,
     "PRE_DATE": False,
     "INVERT": False,
@@ -68,10 +69,13 @@ config = {
     "TERM_COLORS": term_colors,
     "PRIORITIES": priorities,
     "VERSION": version,
-    "REVISION": revision
+    "REVISION": revision,
+    "SHELL": False,
+    "SILENT": False,
 }
 
 todo = TodoDotTxt(config)
+
 
 class CLI(cmd.Cmd):
 
@@ -81,71 +85,115 @@ class CLI(cmd.Cmd):
         self.concat = lambda str_list, sep='': sep.join([str(i) for i in
                                                          str_list])
 
+    def _format_usage(self, command, usage):
+        """
+        format a command and usage for outputting help
+        """
+        # assume commands are no larger than 20
+        # initial indent is one space
+        max_command = 20
+        initial_indent = 1
+        # todo: find a way to get each line from @usage on its own line
+        initial = ''.ljust(initial_indent)
+        indent = ''.ljust(max_command + initial_indent + 1)
+        help = "%s%s" % (command.ljust(max_command), usage)
+        output = textwrap.fill(help, initial_indent=initial,
+                               subsequent_indent=indent)
+#        print lines
+#        output = self.concat(lines, 'c\nd')
+        return output
+
+    def _get_usage(self, arg):
+        func = getattr(todo, arg)
+        command = func.__command__
+        lines = func.__usage__
+        usage = self.concat(lines, "")
+        return self._format_usage(command, usage)
+
     def do_add(self, arg):
         todo.add_todo(arg)
     do_a = do_add
 
-    def help_add(self):
-        usage = todo.add_todo.__usage__
-        print usage
+    def help_add(self, doprint=1):
+        usage = self._get_usage('add_todo')
+        if doprint:
+            print usage
+        return usage
 
     help_a = help_add
 
     def do_addm(self, arg):
         todo.addm_todo(arg)
 
-    def help_addm(self):
-        usage = todo.addm_todo.__usage__
-        print usage
+    def help_addm(self, doprint=1):
+        usage = self._get_usage('addm_todo')
+        if doprint:
+            print usage
+        return usage
+
+    def do_do(self, arg):
+        todo.do_todo(arg)
+
+    def help_do(self, doprint=1):
+        usage = self._get_usage('do_todo')
+        if doprint:
+            print usage
+        return usage
 
     def do_del(self, arg):
         todo.delete_todo(arg)
-    do_d = do_del
+    do_rm = do_del
 
-    def help_del(self):
-        usage = todo.delete_todo.__usage__
-        print usage
-    help_d = help_del
+    def help_del(self, doprint=1):
+        usage = self._get_usage('delete_todo')
+        if doprint:
+            print usage
+        return usage
+    help_rm = help_del
 
     def do_append(self, arg):
         todo.append_todo(arg)
     do_app = do_append
 
-    def help_append(self):
-        usage = todo.append_todo.__usage__
-        print usage
+    def help_append(self, doprint=1):
+        usage = self._get_usage('append_todo')
+        if doprint:
+            print usage
+        return usage
     help_app = help_append
 
     def do_pri(self, arg):
         todo.prioritize_todo(arg)
     do_p = do_pri
 
-    def help_pri(self):
-        usage = todo.prioritize_todo.__usage__
-        print usage
+    def help_pri(self, doprint=1):
+        usage = self._get_usage('prioritize_todo')
+        if doprint:
+            print usage
+        return usage
     help_p = help_pri
 
     def do_depri(self, arg):
         todo.de_prioritize_todo(arg)
     do_dp = do_depri
 
-    def help_depri(self):
-        usage = todo.de_prioritize_todo.__usage__
-        print usage
+    def help_depri(self, doprint=1):
+        usage = self._get_usage('de_prioritize_todo')
+        if doprint:
+            print usage
+        return usage
 
     help_dp = help_depri
 
     def do_prepend(self, arg):
-       todo.prepend_todo(arg)
+        todo.prepend_todo(arg)
     do_pre = do_prepend
 
-    def help_prepend(self):
-        command = todo.prepend_todo.__command__
-        lines = todo.prepend_todo.__usage__
-        usage = self.concat(lines, '\n').expandtabs(3)
-        wrapper = TextWrapper(subsequent_indent="\t\t")
-        help = "%s\t%s" % (command, usage)
-        print wrapper.fill(help)
+    def help_prepend(self, doprint=1):
+        usage = self._get_usage('prepend_todo')
+        if doprint:
+            print usage
+        return usage
 
         # print "%s\t\t%s" % (command, usage)
     #        for use in usage:
@@ -156,83 +204,240 @@ class CLI(cmd.Cmd):
     def do_list(self, arg):
         todo.list_todo(arg)
     do_ls = do_list
+    do_l = do_list
 
-    def help_list(self):
-        usage = todo.list_todo.__usage__
-        print usage
+    def help_list(self, doprint=1):
+        usage = self._get_usage('list_todo')
+        if doprint:
+            print usage
+        return usage
+
     help_ls = help_list
+    help_l = help_list
 
-    def do_listall(self, arg):
-        todo.list_all(arg)
+    def do_listall(self):
+        todo.list_all()
     do_lsa = do_listall
 
-    def help_listall(self):
-        usage = todo.list_all.__usage__
-        print usage
+    def help_listall(self, doprint=1):
+        usage = self._get_usage('list_all')
+        if doprint:
+            print usage
+        return usage
     help_lsa = help_listall
 
-    def do_listdate(self, arg):
-        todo.list_date(arg)
+    def do_listdate(self):
+        todo.list_date()
     do_lsd = do_listdate
 
-    def help_listdate(self):
-        usage = todo.list_date.__usage__
-        print usage
+    def help_listdate(self, doprint=1):
+        usage = self._get_usage('list_date')
+        if doprint:
+            print usage
+        return usage
     help_lsd = help_listdate
 
-    def do_listproj(self, arg):
-        todo.list_project(arg)
+    def do_listproj(self):
+        todo.list_project()
     do_lsp = do_listproj
 
-    def help_listproj(self):
-        usage = todo.list_project.__usage__
-        print usage
+    def help_listproj(self, doprint=1):
+        usage = self._get_usage('list_project')
+        if doprint:
+            print usage
+        return usage
     help_lsp = help_listproj
 
-    def do_listcon(self, arg):
-        todo.list_context(arg)
+    def do_listcon(self):
+        todo.list_context()
     do_lsc = do_listcon
 
-    def help_listcon(self):
-        usage = todo.list_context.__usage__
-        print usage
+    def help_listcon(self, doprint=1):
+        usage = self._get_usage('list_context')
+        if doprint:
+            print usage
+        return usage
     help_lsc = help_listcon
 
-
-    def do_quit(self, arg):
+    def do_quit(self):
         """ quit """
         sys.exit(1)
     do_q = do_quit
 
-    def help_quit(self):
-        print "syntax: quit",
-        print "-- terminates the application"
+    def help_quit(self, doprint=1):
+        command = 'quit|q'
+        usage = "terminates the application"
+        help = self._format_usage(command, usage)
+        if doprint:
+            print help
+        return help
     help_q = help_quit
 
-    def help_help(self):
-        print "type help <topic>"
+    def help_help(self, doprint=1):
+        command = 'help'
+        usage = "type help <topic>"
+        help = self._format_usage(command, usage)
+        if doprint:
+            print help
+        return help
 
-    def do_EOF(self, arg):
+    def do_EOF(self):
         sys.exit(1)
 
+    # create a helpall command
+    def do_helpall(self):
+        names = self.get_names()
+        cmds_doc = []
+        cmds_undoc = []
+        help = {}
+        usage = []
+        for name in names:
+            if name[:5] == 'help_':
+                help[name[5:]] = 1
+        names.sort()
+        # There can be duplicates if routines overridden
+        prevname = ''
+        for name in names:
+            if name[:3] == 'do_':
+                if name == prevname:
+                    continue
+                prevname = name
+                cmd = name[3:]
+                if cmd in help:
+                    # self.do_help(cmd)
+                    # self.stdout.write("cmd: %s, " % cmd)
+                    func = getattr(self, 'help_' + cmd)
+                    thisUsage = func(0)
+                    # print thisUsage
+                    if thisUsage not in usage:
+                        usage.append(thisUsage)
+                    cmds_doc.append(cmd)
+                    del help[cmd]
+                elif getattr(self, name).__doc__:
+                    cmds_doc.append(cmd)
+                else:
+                    cmds_undoc.append(cmd)
+        self.stdout.write("%s\n" % str(self.doc_leader))
 
+        usage.sort()
+        for use in usage:
+            print use
+    do_ha = do_helpall
+
+    def help_helpall(self, doprint=1):
+        command = 'helpall|ha'
+        usage = "lists help for all commands"
+        help = self._format_usage(command, usage)
+        if doprint:
+            print help
+        return help
+    help_ha = help_helpall
+
+
+### command line options
+def opt_setup():
+    opts = OptionParser("Usage: %prog [options] action [arg(s)]")
+    opts.add_option("-c", "--config", dest="config", default="",
+                    type="string",
+                    nargs=1,
+                    help='Supply your own configuration file, '
+                         'must be an absolute path',
+                    )
+    opts.add_option("-d", "--dir", dest="todo_dir", default="",
+                    type="string",
+                    nargs=1,
+                    help="Directory you wish {prog} to use.".format(
+                        prog=todo.config["TODO_PY"])
+                    )
+    opts.add_option("-p", "--plain-mode", action="callback",
+                    callback=todo.toggle_opt,
+                    help="Toggle coloring of items"
+                    )
+    opts.add_option("-P", "--no-priority", action="callback",
+                    #todo: make -P work
+                    callback=todo.toggle_opt,
+                    help="Toggle display of priority labels"
+                    )
+    opts.add_option("-t", "--prepend-date", action="callback",
+                    #todo: make -t work
+                    callback=todo.toggle_opt,
+                    help="Toggle whether the date is prepended to new items."
+                    )
+    opts.add_option("-s", "--shell", action="callback",
+                    callback=todo.toggle_opt,
+                    help="Use interactive shell"
+                    )
+    opts.add_option("--silent", action="callback",
+                    callback=todo.toggle_opt,
+                    help="If using interactive shell, disables prompt. Good "
+                         "for scripting"
+                    )
+    opts.add_option("-V", "--version", action="callback",
+                    callback=todo.version,
+                    nargs=0,
+                    help="Print version, license, and credits"
+                    )
+    opts.add_option("-i", "--invert-colors", action="callback",
+                    callback=todo.toggle_opt,
+                    help="Toggle coloring the text of items or background of"
+                         " items."
+                    )
+    opts.add_option("-l", "--legacy", action="callback",
+                    callback=todo.toggle_opt,
+                    help="Toggle organization of items in the old manner."
+                    )
+    opts.add_option("-+", action="callback", callback=todo.toggle_opt,
+                    help="Toggle display of +projects in-line with items."
+                    )
+    opts.add_option("-@", action="callback", callback=todo.toggle_opt,
+                    help="Toggle display of @contexts in-line with items."
+                    )
+    opts.add_option("-#", action="callback", callback=todo.toggle_opt,
+                    help="Toggle display of #{dates} in-line with items."
+                    )
+    return opts
 
 # call main loop
 
 if __name__ == '__main__':
 
     todo.config["TODO_PY"] = sys.argv[0]
-    opts = todo.opt_setup()
+    opts = opt_setup()
     valid, args = opts.parse_args()
     todo.get_config(valid.config, valid.todo_dir)
 
-    if not len(args) > 0:
-        CLI().onecmd(config["TODOTXT_DEFAULT_ACTION"])
+    # todo: get args working
+    print args
 
-    if len(sys.argv) > 1:
-        CLI().onecmd(' '.join(sys.argv[1:]))
+    c = CLI()
+    cmd = None
+
+    if not len(args) > 0 and not todo.config["SILENT"]:
+        cmd = config["TODOTXT_DEFAULT_ACTION"]
     else:
-        CLI().cmdloop()
+        cmd = ' '.join(args)
+
+    print cmd
+
+    if todo.config['SHELL']:
+        if todo.config['SILENT']:
+            c.prompt = ''
+            c.cmdloop()
+        else:
+            c.onecmd(cmd)
+            c.cmdloop(intro='todo interactive shell')
+
+    else:
+        c.onecmd(cmd)
+
+
+
+#    print "test"
+#    if len(sys.argv) > 1:
+##        CLI().onecmd(' '.join(sys.argv[1:]))
+#        CLI().onecmd(' '.join(args))
+#    else:
+#        CLI().cmdloop()
 
 
 ##    opts = DoToDo.opt_setup()
