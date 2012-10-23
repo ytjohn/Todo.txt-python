@@ -111,7 +111,14 @@ class CLI(cmd.Cmd):
         return self._format_usage(command, usage)
 
     def do_add(self, arg):
-        todo.add_todo(arg)
+        (status, output) = todo.add_todo(arg)
+        if status == 'usage':
+            self.help_add()
+            return 1
+        elif status == 'success':
+            print output
+
+
     do_a = do_add
 
     def help_add(self, doprint=1):
@@ -124,6 +131,7 @@ class CLI(cmd.Cmd):
 
     def do_addm(self, arg):
         todo.addm_todo(arg)
+        # since addm prints from within the function, no output needed
 
     def help_addm(self, doprint=1):
         usage = self._get_usage('addm_todo')
@@ -132,7 +140,12 @@ class CLI(cmd.Cmd):
         return usage
 
     def do_do(self, arg):
-        todo.do_todo(arg)
+        (status, output) = todo.do_todo(arg)
+        if status == "usage":
+            self.help_do()
+        elif status == "success":
+            for out in output:
+                print out
 
     def help_do(self, doprint=1):
         usage = self._get_usage('do_todo')
@@ -407,7 +420,6 @@ if __name__ == '__main__':
     todo.get_config(valid.config, valid.todo_dir)
 
     # todo: get args working
-    print args
 
     c = CLI()
     cmd = None
@@ -416,8 +428,6 @@ if __name__ == '__main__':
         cmd = config["TODOTXT_DEFAULT_ACTION"]
     else:
         cmd = ' '.join(args)
-
-    print cmd
 
     if todo.config['SHELL']:
         if todo.config['SILENT']:

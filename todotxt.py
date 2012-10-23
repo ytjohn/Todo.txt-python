@@ -26,7 +26,7 @@ from datetime import datetime, date
 
 # enable debug logging while coding
 import logging
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 # from usage import Usage as usage
 
@@ -218,7 +218,7 @@ class TodoDotTxt():
         args = list(args)  # [a for a in args]
         args.append(' ')
         prompt_str = self.concat(args).format(**kwargs)
-        raw = input(prompt_str)
+        raw = raw_input(prompt_str)
         return re.sub(r"\\", "", raw)
 
     def print_x_of_y(self, x, y):
@@ -492,12 +492,12 @@ class TodoDotTxt():
             '+project, @context, #{yyyy-mm-dd} are optional'])
     def add_todo(self, args):
         """Add a new item to the list of things todo."""
-        if str(args) == args:
+        args = str(args)
+        if len(args) >= 1:
             line = args
-        elif len(args) >= 1:
-            line = self.concat(args, " ")
         else:
-            line = self.prompt("Add:")
+            status = 'usage'
+            return status, 'usage: add item'
 
         prepend = self.config["PRE_DATE"]
         l = len([1 for l in self.iter_todos()]) + 1
@@ -514,25 +514,33 @@ class TodoDotTxt():
             fd.write(self.concat([line, "\n"]))
 
         s = "TODO: '{0}' added on line {1}.".format(line, l)
-        print(s)
+#        print(s)
         if self.config["USE_GIT"]:
             self._git_commit([self.config["TODO_FILE"]], s)
+        return ('success', s)
 
     @usage('addm',
            ['First item to do +project @context #{yyyy-mm-dd} \n',
             'Second item to do +project @context #{yyyy-mm-dd} \n',
             '...', 'Last item to do +project @context #{yyyy-mm-dd} \n',
             'Adds each line as a separate item to your todo.txt file.'])
-    def addm_todo(self, args):
-        """Add new items to the list of things todo."""
-        # todo: does not work in interactive shell (shift-return not
-        # recognized)
-        if str(args) == args:
-            lines = args
-        else:
-            lines = self.concat(args, " ")
-        lines = lines.split("\n")
-        list(map(self.add_todo, lines))  # Necessary for python 3000
+    def addm_todo(self, line=None):
+        """Add new items to the list of things todo.
+           Only to be used in CLI type environments.
+        """
+        output = []
+        if not line:
+            line = self.prompt("Add:")
+        if len(line) > 0:
+            (status, output) = self.add_todo(line)
+            # since this only happens in a CLI, I will go ahead and print here
+            print output
+            self.addm_todo()
+
+        # lines = lines.split("\n")
+        # list(map(self.add_todo, lines))  # Necessary for python 3000
+
+
     ### End new todo functions
 
     ### Start do/del functions
@@ -540,11 +548,17 @@ class TodoDotTxt():
            ['Marks item with corresponding number as done and moves it to '
             'your done.txt file'])
     def do_todo(self, line):
-        """Mark an item on a specified line as done."""
+        """Mark an item on a specified line as done.
+            returns:
+                syntax error: ('usage', 'placeholder')
+                success: ('success', output)
+        """
 
         if not line.isdigit():
             # logging.debug("do_todo digit x: %s" % line)
-            print("Usage: {0} do item#".format(self.config["TODO_PY"]))
+            status = 'usage'
+            return(status, 'Usage: do item#')
+            # print("Usage: {0} do item#".format(self.config["TODO_PY"]))
         else:
             # logging.debug("do_todo string x: %s" % line)
             removed, lines = self.separate_line(int(line))
@@ -568,10 +582,15 @@ class TodoDotTxt():
                     fd.write(removed)
                 files.append(self.config["DONE_FILE"])
 
-            print(removed[:-1])
-            print("TODO: Item {0} marked as done.".format(line))
-            if self.config["USE_GIT"]:
-                self._git_commit(files, removed)
+            output = [removed[:-1],
+                      "TODO: Item %s marked as done" % line]
+            #print(removed[:-1])
+            #print("TODO: Item {0} marked as done.".format(line))
+            return "success", output
+#            for out in output:
+#                print out
+#            if self.config["USE_GIT"]:
+#                self._git_commit(files, removed)
 
     @usage('del|rm NUMBER',
            ['Deletes the item on line NUMBER in todo.txt'])
