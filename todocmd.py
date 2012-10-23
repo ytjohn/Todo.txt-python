@@ -20,7 +20,7 @@ import  sys
 from optparse import OptionParser
 import textwrap
 from todotxt import TodoDotTxt
-
+import logging
 
 concat = lambda str_list, sep='': sep.join([str(i) for i in str_list])
 _path = lambda p: os.path.abspath(os.path.expanduser(p))
@@ -49,6 +49,7 @@ term_colors = {
 
 todo_dir = _path("~/.todo")
 config = {
+    "DEBUG": False, # set to True to enable debug logging
     "TODO_DIR": todo_dir,
     "TODOTXT_DEFAULT_ACTION": "list",
     "TODOTXT_CFG_FILE": _pathc([todo_dir, "/config"]),
@@ -154,7 +155,12 @@ class CLI(cmd.Cmd):
         return usage
 
     def do_del(self, arg):
-        todo.delete_todo(arg)
+        (status, output) = todo.delete_todo(arg)
+        if status == "usage":
+            self.help_del()
+        elif status == "success":
+            for out in output:
+                print out
     do_rm = do_del
 
     def help_del(self, doprint=1):
@@ -272,9 +278,9 @@ class CLI(cmd.Cmd):
         return usage
     help_lsc = help_listcon
 
-    def do_quit(self):
+    def do_quit(self, arg):
         """ quit """
-        sys.exit(1)
+        sys.exit(0)
     do_q = do_quit
 
     def help_quit(self, doprint=1):
@@ -296,6 +302,22 @@ class CLI(cmd.Cmd):
 
     def do_EOF(self):
         sys.exit(1)
+
+    def do_debug(self, arg):
+        """ Show or change debug status"""
+        #TODO: desite efforts, doesn't change debug level of todotxt.py
+
+        switch = str(arg).upper()
+        if switch == "ON":
+            enableDebug()
+        elif switch == "OFF":
+            disableDebug()
+
+        if todo.config["DEBUG"]:
+            print "DEBUG is ON."
+        else:
+            print "DEBUG is OFF."
+
 
     # create a helpall command
     def do_helpall(self):
@@ -347,6 +369,18 @@ class CLI(cmd.Cmd):
     help_ha = help_helpall
 
 
+def enableDebug(option=None, opt_str=None, val=None, parser=None):
+    #todo: this doesn't actually change it for todocmd.py
+    todo.enableDebug()
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug('todocmd.enableDebug: debug enabled')
+
+def disableDebug(option=None, opt_str=None, val=None, parser=None):
+    #todo: this doesn't actually change it for todocmd.py
+    todo.disableDebug()
+    logging.basicConfig(level=logging.INFO)
+    logging.info('todocmd.disableDebug: debug disabled')
+
 ### command line options
 def opt_setup():
     opts = OptionParser("Usage: %prog [options] action [arg(s)]")
@@ -380,7 +414,7 @@ def opt_setup():
                     callback=todo.toggle_opt,
                     help="Use interactive shell"
                     )
-    opts.add_option("--silent", action="callback",
+    opts.add_option("-q", "--quiet", "--silent", action="callback",
                     callback=todo.toggle_opt,
                     help="If using interactive shell, disables prompt. Good "
                          "for scripting"
@@ -389,6 +423,11 @@ def opt_setup():
                     callback=todo.version,
                     nargs=0,
                     help="Print version, license, and credits"
+                    )
+    opts.add_option("-D", "--debug", action="callback",
+                    callback=enableDebug,
+                    nargs=0,
+                    help="Enables debug messages"
                     )
     opts.add_option("-i", "--invert-colors", action="callback",
                     callback=todo.toggle_opt,

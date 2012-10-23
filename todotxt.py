@@ -26,7 +26,7 @@ from datetime import datetime, date
 
 # enable debug logging while coding
 import logging
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 # from usage import Usage as usage
 
@@ -41,6 +41,8 @@ class TodoDotTxt():
 
     def __init__(self, config):
         self.config = config
+        if self.config['DEBUG']:
+            logging.basicConfig(level=logging.DEBUG)
         self.concat = lambda str_list, sep='': sep.join([str(i) for i in
                                                         str_list])
         self._path = lambda p: os.path.abspath(os.path.expanduser(p))
@@ -75,6 +77,17 @@ class TodoDotTxt():
             "h"			: (False, self.cmd_help),
             "help"		: (False, self.cmd_help),
         }
+
+    def __call__(self, *args, **kwargs):
+        print "hi"
+
+    def enableDebug(self):
+        self.config["DEBUG"] = True
+        logging.basicConfig(level=logging.DEBUG)
+
+    def disableDebug(self):
+        self.config["DEBUG"] = False
+        logging.basicConfig(level=logging.WARN)
 
     def get_commands(self):
         return self.commands
@@ -488,7 +501,7 @@ class TodoDotTxt():
 
     ### New todo Functions
     @usage('add|a',
-           ['Adds todo ttem to +project @context #{yyyy-mm-dd}',
+           ['Adds todo item to +project @context #{yyyy-mm-dd}',
             '+project, @context, #{yyyy-mm-dd} are optional'])
     def add_todo(self, args):
         """Add a new item to the list of things todo."""
@@ -520,10 +533,10 @@ class TodoDotTxt():
         return ('success', s)
 
     @usage('addm',
-           ['First item to do +project @context #{yyyy-mm-dd} \n',
-            'Second item to do +project @context #{yyyy-mm-dd} \n',
-            '...', 'Last item to do +project @context #{yyyy-mm-dd} \n',
-            'Adds each line as a separate item to your todo.txt file.'])
+           ['Adds multiple items to +project @context #{yyyy-mm-dd}. You can'
+            ' specify the first item on the command line, '
+            'then you will be prompted for each additional item. Return on a'
+            ' blank line to finish.'])
     def addm_todo(self, line=None):
         """Add new items to the list of things todo.
            Only to be used in CLI type environments.
@@ -597,7 +610,8 @@ class TodoDotTxt():
     def delete_todo(self, line):
         """Delete an item without marking it as done."""
         if not line.isdigit():
-            print("Usage: {0} (del|rm) item#".format(self.config["TODO_PY"]))
+            return "usage", "Usage: del item#"
+            #print("Usage: {0} (del|rm) item#".format(self.config["TODO_PY"]))
         else:
             # todo: make sure line exist before deleting
             removed, lines = self.separate_line(int(line))
@@ -608,10 +622,13 @@ class TodoDotTxt():
                 self.rewrite_file(fd, lines)
 
             removed = "'{0}' deleted.".format(removed[:-1])
-            print(removed)
-            print("TODO: Item {0} deleted.".format(line))
-            if self.config["USE_GIT"]:
-                self._git_commit([self.config["TODO_FILE"]], removed)
+            output = [removed[:-1],
+                      "TODO: Item %s deleted." % line]
+#            print(removed)
+#            print("TODO: Item {0} deleted.".format(line))
+            return "success", output
+#            if self.config["USE_GIT"]:
+#                self._git_commit([self.config["TODO_FILE"]], removed)
     ### End do/del Functions
 
     ### Post-production todo functions
@@ -893,6 +910,7 @@ class TodoDotTxt():
     def list_todo(self, args=None, plain=False, no_priority=False):
         """Print the list of todo items in order of priority and position in
          the todo.txt file."""
+        logging.debug("test debug message")
         if not args:
             lines, sorted = self._list_("pri", "")
             print(self.concat(sorted)[:-1])
@@ -974,8 +992,9 @@ class TodoDotTxt():
                        "--plain-mode": "PLAIN", "--no-priority": "NO_PRI",
                        "--prepend-date": "PRE_DATE", "-i": "INVERT",
                        "--invert-colors": "INVERT", "-l": "LEGACY",
-                       "--legacy": "LEGACY", "-s": "SHELL",
-                       "--silent": "SILENT",
+                       "--legacy": "LEGACY", "--shell": "SHELL", "-s": "SHELL",
+                       "--silent": "SILENT", "-q": "SILENT",
+                       "--quiet": "SILENT",
                        }
         if opt_str in toggle_dict.keys():
             k = toggle_dict[opt_str]
