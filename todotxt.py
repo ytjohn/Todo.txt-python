@@ -636,23 +636,6 @@ class TodoDotTxt():
 #                self._git_commit([self.config["TODO_FILE"]], removed)
     ### End do/del Functions
 
-    ### Post-production todo functions
-    def post_error(self, command, arg1, arg2):
-        """If one of the post-production todo functions isn't given the proper
-        arguments, the function calls this to notify the user of what they
-        need to supply."""
-        if arg2:
-            output = (self.concat(["'", self.config["TODO_PY"], " ", command,
-                               "' requires a(n) ", arg1, " then a ", arg2,
-                               "."]))
-            logging.debug("post_error %s" % output)
-            return output
-        else:
-            logging.debug("post_error %s" % output)
-            output (self.concat(["'", self.config["TODO_PY"], " ", command,
-                               "' requires a(n) ", arg1, "."]))
-            return output
-
     def post_success(self, item_no, old_line, new_line):
         """After changing a line, pring a standard line and commit the
         change."""
