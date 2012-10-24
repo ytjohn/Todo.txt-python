@@ -48,35 +48,35 @@ class TodoDotTxt():
         self._path = lambda p: os.path.abspath(os.path.expanduser(p))
         self._pathc = lambda plist: self._path(self.concat(plist))
         self.term_colors = config['TERM_COLORS']
-        self.commands = {
-            # command 	: ( Args, Function),
-            "a"			: (True, self.add_todo),
-            "add"		: (True, self.add_todo),
-            "addm"		: (True, self.addm_todo),
-            "app"		: (True, self.append_todo),
-            "append"	: (True, self.append_todo),
-            "do"		: (True, self.do_todo),
-            "p"			: (True, self.prioritize_todo),
-            "pri"		: (True, self.prioritize_todo),
-            "pre"		: (True, self.prepend_todo),
-            "prepend"	: (True, self.prepend_todo),
-            "dp"		: (True, self.de_prioritize_todo),
-            "depri"		: (True, self.de_prioritize_todo),
-            "del"		: (True, self.delete_todo),
-            "rm"		: (True, self.delete_todo),
-            "ls"		: (True, self.list_todo),
-            "list"		: (True, self.list_todo),
-            "listall"	: (False, self.list_all),
-            "lsa"		: (False, self.list_all),
-            "lsc"		: (False, self.list_context),
-            "listcon"	: (False, self.list_context),
-            "lsd"		: (False, self.list_date),
-            "listdate"	: (False, self.list_date),
-            "lsp"		: (False, self.list_project),
-            "listproj"	: (False, self.list_project),
-            "h"			: (False, self.cmd_help),
-            "help"		: (False, self.cmd_help),
-        }
+#        self.commands = {
+#            # command 	: ( Args, Function),
+#            "a"			: (True, self.add_todo),
+#            "add"		: (True, self.add_todo),
+#            "addm"		: (True, self.addm_todo),
+#            "app"		: (True, self.append_todo),
+#            "append"	: (True, self.append_todo),
+#            "do"		: (True, self.do_todo),
+#            "p"			: (True, self.prioritize_todo),
+#            "pri"		: (True, self.prioritize_todo),
+#            "pre"		: (True, self.prepend_todo),
+#            "prepend"	: (True, self.prepend_todo),
+#            "dp"		: (True, self.de_prioritize_todo),
+#            "depri"		: (True, self.de_prioritize_todo),
+#            "del"		: (True, self.delete_todo),
+#            "rm"		: (True, self.delete_todo),
+#            "ls"		: (True, self.list_todo),
+#            "list"		: (True, self.list_todo),
+#            "listall"	: (False, self.list_all),
+#            "lsa"		: (False, self.list_all),
+#            "lsc"		: (False, self.list_context),
+#            "listcon"	: (False, self.list_context),
+#            "lsd"		: (False, self.list_date),
+#            "listdate"	: (False, self.list_date),
+#            "lsp"		: (False, self.list_project),
+#            "listproj"	: (False, self.list_project),
+#            "h"			: (False, self.cmd_help),
+#            "help"		: (False, self.cmd_help),
+#        }
 
     def __call__(self, *args, **kwargs):
         print "hi"
@@ -415,6 +415,7 @@ class TodoDotTxt():
                          self.concat(["refs/heads/", remote_branch]))
 
     def default_config(self):
+        #todo: review this function and remove print statement
         """Set up the default configuration file."""
         def touch(filename):
             """Create files if they aren't already there."""
@@ -641,12 +642,16 @@ class TodoDotTxt():
         arguments, the function calls this to notify the user of what they
         need to supply."""
         if arg2:
-            print(self.concat(["'", self.config["TODO_PY"], " ", command,
+            output = (self.concat(["'", self.config["TODO_PY"], " ", command,
                                "' requires a(n) ", arg1, " then a ", arg2,
                                "."]))
+            logging.debug("post_error %s" % output)
+            return output
         else:
-            print(self.concat(["'", self.config["TODO_PY"], " ", command,
+            logging.debug("post_error %s" % output)
+            output (self.concat(["'", self.config["TODO_PY"], " ", command,
                                "' requires a(n) ", arg1, "."]))
+            return output
 
     def post_success(self, item_no, old_line, new_line):
         """After changing a line, pring a standard line and commit the
@@ -702,13 +707,11 @@ class TodoDotTxt():
         print priority
         if len(priority) is 1 and line_no >= 0:
             if priority in self.config['PRIORITIES']:
-#                line_no = int(args.pop(0))
                 old_line, lines = self.separate_line(line_no)
                 if self.test_separated(old_line, lines, line_no):
                     return
 
                 new_pri = "(%s) " % priority
-#                new_pri = self.concat(["(", priority, ") "])
                 r = re.match("(\([A-X]\)\s).*", old_line)
                 if r:
                     new_line = re.sub(re.escape(r.groups()[0]), new_pri,
@@ -721,7 +724,6 @@ class TodoDotTxt():
                     lines)
                 return 'success', output
             else:
-#                self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
                 return 'usage', 'usage'
         else:
             return 'usage', 'usage'
@@ -741,9 +743,10 @@ class TodoDotTxt():
             new_line = re.sub("(\([A-X]\)\s)", "", old_line)
             lines.insert(number - 1, new_line)
 
-            self.rewrite_and_post(number, old_line, new_line, lines)
+            output = self.rewrite_and_post(number, old_line, new_line, lines)
+            return 'success', output
         else:
-            self.post_error('depri', 'NUMBER', None)
+            return 'usage', 'usage'
 
     @usage('prepend|pre NUMBER',
            ['text to prepend', 'Add "text to prepend" to the beginning of '
@@ -773,23 +776,23 @@ class TodoDotTxt():
             # self.post_error('append', 'NUMBER', 'string')
     ### End Post-production todo functions
 
-    ### HELP
-    @usage('help|h', ['Display this message and exit.'])
-    def cmd_help(self):
-        print(self.concat(["Use", self.config["TODO_PY"],
-                           "-h for option help\n"], " "))
-        print(self.concat(["Usage:", self.config["TODO_PY"],
-                          "command [arg(s)]"], " "))
-        d = {}
-        for (key, val) in self.get_commands().items():
-            d[val[1]] = (key, val[1])
-            # By using the function, only one command name will be added
-        cmds = sorted(d.values())  # Only get the tuples
-        # TODO: have this use the usage class
-        for (_, f) in cmds:
-            print(f.__usage__)
-        sys.exit(0)
-    ### HELP
+#    ### HELP
+#    @usage('help|h', ['Display this message and exit.'])
+#    def cmd_help(self):
+#        print(self.concat(["Use", self.config["TODO_PY"],
+#                           "-h for option help\n"], " "))
+#        print(self.concat(["Usage:", self.config["TODO_PY"],
+#                          "command [arg(s)]"], " "))
+#        d = {}
+#        for (key, val) in self.get_commands().items():
+#            d[val[1]] = (key, val[1])
+#            # By using the function, only one command name will be added
+#        cmds = sorted(d.values())  # Only get the tuples
+#        # TODO: have this use the usage class
+#        for (_, f) in cmds:
+#            print(f.__usage__)
+#        sys.exit(0)
+#    ### HELP
 
     ### List Printing Functions
     def format_lines(self, color_only=False, include_done=False):

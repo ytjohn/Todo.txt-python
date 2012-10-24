@@ -216,7 +216,14 @@ class CLI(cmd.Cmd):
     help_p = help_pri
 
     def do_depri(self, arg):
-        todo.de_prioritize_todo(arg)
+        (status, output) = todo.de_prioritize_todo(arg)
+        if status == "usage":
+            self.help_depri()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_dp = do_depri
 
     def help_depri(self, doprint=1):
@@ -391,7 +398,7 @@ class CLI(cmd.Cmd):
 
 
     # create a helpall command
-    def do_helpall(self):
+    def do_helpall(self, arg):
         names = self.get_names()
         cmds_doc = []
         cmds_undoc = []
