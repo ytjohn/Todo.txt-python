@@ -238,10 +238,13 @@ class TodoDotTxt():
     def print_x_of_y(self, x, y):
         t_str = "--\nTODO: {0} of {1} tasks shown"
         if len(x) > len(y):  # EXTREMELY hack-ish
-            print(t_str.format(len(y), len(y)))  # There can't logically be
-            # more lines of items to do than there actually are.
+            output = (t_str.format(len(y), len(y)))  # There can't logically
+            # be more lines of items to do than there actually are.
+            logging.debug(output)
+            return output
         else:
-            print(t_str.format(len(x), len(y)))
+            output = (t_str.format(len(x), len(y)))
+            return output
 
     def test_separated(self, removed, lines, line_no):
         if not (removed or lines):
@@ -923,8 +926,9 @@ class TodoDotTxt():
             lines = matched_lines[:]
 
         if lines:
-            print(self.concat(lines)[:-1])
-        self.print_x_of_y(lines, alines)
+            output = (self.concat(lines)[:-1])
+        output = "%s\n%s" % (output, self.print_x_of_y(lines, alines))
+        return output
 
     @usage('list|ls|l',
            ['Lists all items in your todo.txt file sorted by priority.'])
@@ -934,10 +938,14 @@ class TodoDotTxt():
         logging.debug("test debug message")
         if not args:
             lines, sorted = self._list_("pri", "")
-            print(self.concat(sorted)[:-1])
-            self.print_x_of_y(sorted, sorted)
+            output = self.concat(sorted)[:-1]
+#            print output
+            totals = self.print_x_of_y(sorted, sorted)
+#            print totals
+            return 'succes', "%s\n%s" % (output, totals)
         else:
-            self._list_by_(*args)
+            output = self._list_by_(*args)
+            return 'success', output
 
     @usage('listall|lsa',
            ['Lists all items in your todo.txt file sorted by priority '

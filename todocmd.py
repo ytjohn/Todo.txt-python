@@ -255,7 +255,15 @@ class CLI(cmd.Cmd):
     help_pre = help_prepend
 
     def do_list(self, arg):
-        todo.list_todo(arg)
+#        todo.list_todo(arg)
+        (status, output) = todo.list_todo(arg)
+        if status == "usage":
+            self.help_list()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_ls = do_list
     do_l = do_list
 
