@@ -958,8 +958,9 @@ class TodoDotTxt():
         for p in self.config['PRIORITIES']:
             lines.extend(formatted[p])
         if lines:
-            print(self.concat(lines)[:-1])
-        self.print_x_of_y(lines, lines)
+            output = (self.concat(lines)[:-1])
+        totals = self.print_x_of_y(lines, lines)
+        return 'success', "%s\n%s" % (output, totals)
 
     @usage('listdate|lsd',
            ['Lists all items in your todo.txt file sorted by date.'])
