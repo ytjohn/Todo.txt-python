@@ -161,6 +161,11 @@ class CLI(cmd.Cmd):
         elif status == "success":
             for out in output:
                 print out
+        else:
+            print "unknown %s" % status
+            for out in output:
+                print out
+
     do_rm = do_del
 
     def help_del(self, doprint=1):
@@ -171,7 +176,18 @@ class CLI(cmd.Cmd):
     help_rm = help_del
 
     def do_append(self, arg):
-        todo.append_todo(arg)
+        (status, output) = todo.append_todo(arg)
+        if status == "usage":
+            self.help_append()
+        elif status == "success":
+            print output
+#            for out in output:
+#                print out
+        else:
+            print "unknown %s" % status
+            print output
+#            for out in output:
+#                print out
     do_app = do_append
 
     def help_append(self, doprint=1):
@@ -205,7 +221,18 @@ class CLI(cmd.Cmd):
     help_dp = help_depri
 
     def do_prepend(self, arg):
-        todo.prepend_todo(arg)
+        (status, output) = todo.prepend_todo(arg)
+        if status == "usage":
+            self.help_prepend()
+        elif status == "success":
+            print output
+        #            for out in output:
+        #                print out
+        else:
+            print "unknown %s" % status
+            print output
+        #            for out in output:
+        #                print out
     do_pre = do_prepend
 
     def help_prepend(self, doprint=1):

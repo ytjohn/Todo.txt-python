@@ -147,7 +147,8 @@ class TodoDotTxt():
         """Wrapper for frequently used semantics for "post-production"."""
         with open(self.config["TODO_FILE"], "w") as fd:
             self.rewrite_file(fd, lines)
-        self.post_success(line_no, old_line, new_line)
+        output = self.post_success(line_no, old_line, new_line)
+        return output
 
     def usage(name, lines):
         """Set the usage string printed out in ./todo.py help."""
@@ -651,28 +652,41 @@ class TodoDotTxt():
         new_line = new_line.rstrip()
         print_str = "TODO: Item {0} changed from '{1}' to '{2}'.".format(
             item_no, old_line, new_line)
-        print(print_str)
+        # todo: need to remove the print command below
+        # print(print_str)
         if self.config["USE_GIT"]:
             self._git_commit([self.config["TODO_FILE"]], print_str)
+        return print_str
 
     @usage('append|app NUMBER',
            ['text to append - Append "text to append" to item NUMBER.'])
     def append_todo(self, args):
         """Append text to the item specified."""
+        # todo: seem to have broken this - "no attribute 'pop'"
+        logging.debug("args0 %s" % args[0])
+
+
         if args[0].isdigit():
-            line_no = int(args.pop(0))
+            l = str(args)
+            (line_no, line) = l.split(' ',1)
+            line_no = int(line_no)
+            logging.debug("ln: %s, %s" % (line_no, line))
             old_line, lines = self.separate_line(line_no)
+            logging.debug("old line: %s" % old_line)
             if self.test_separated(old_line, lines, line_no):
                 return
 
-            new_line = self.concat([self.concat([old_line[:-1],
-                                                 self.concat(args, " ")],
-                                    " "), "\n"])
+            new_line = "%s %s\n" % (old_line.strip(), line)
+            logging.debug("new line: %s..." % new_line)
+
             lines.insert(line_no - 1, new_line)
 
-            self.rewrite_and_post(line_no, old_line, new_line, lines)
+            output = self.rewrite_and_post(line_no, old_line, new_line, lines)
+            return 'success', output
         else:
-            self.post_error('append', 'NUMBER', 'string')
+            return 'usage', 'append NUMBER "text to append"'
+            # self.post_error('append', 'NUMBER', 'string')
+
 
     @usage('pri|p NUMBER [A-X]',
            ['Add priority specified (A, B, C, etc.) to item NUMBER.'])
@@ -728,25 +742,25 @@ class TodoDotTxt():
         """Take in the line number and prepend the rest of the arguments to the
         item specified by the line number."""
         if args[0].isdigit():
-            line_no = int(args.pop(0))
-            prepend_str = self.concat(args, " ") + " "
+            l = str(args)
+            (line_no, line) = l.split(' ',1)
+            line_no = int(line_no)
+            logging.debug("ln: %s, %s" % (line_no, line))
             old_line, lines = self.separate_line(line_no)
+            logging.debug("old line: %s" % old_line)
             if self.test_separated(old_line, lines, line_no):
                 return
 
-            pri_re = re.compile('^(\([A-X]\)\s)')
-
-            if pri_re.match(old_line):
-                new_line = pri_re.sub(self.concat(["\g<1>", prepend_str]),
-                                      old_line)
-            else:
-                new_line = self.concat([prepend_str, old_line])
+            new_line = "%s %s\n" % (line.strip(), old_line.strip())
+            logging.debug("new line: %s..." % new_line)
 
             lines.insert(line_no - 1, new_line)
 
-            self.rewrite_and_post(line_no, old_line, new_line, lines)
+            output = self.rewrite_and_post(line_no, old_line, new_line, lines)
+            return 'success', output
         else:
-            self.post_error('prepend', 'NUMBER', 'string')
+            return 'usage', 'append NUMBER "text to append"'
+            # self.post_error('append', 'NUMBER', 'string')
     ### End Post-production todo functions
 
     ### HELP
