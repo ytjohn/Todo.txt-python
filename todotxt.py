@@ -967,8 +967,9 @@ class TodoDotTxt():
     def list_date(self):
         """List todo items by date #{yyyy-mm-dd}."""
         lines, sorted = self._list_("date", "#\{(\d{4})-(\d{1,2})-(\d{1,2})\}")
-        print(self.concat(sorted)[:-1])
-        self.print_x_of_y(sorted, lines)
+        output = (self.concat(sorted)[:-1])
+        totals = self.print_x_of_y(sorted, lines)
+        return 'success', "%s\n%s" % (output, totals)
 
     @usage('listproj|lsp',
            ['Lists all items in your todo.txt file sorted by project title.'])

@@ -278,7 +278,6 @@ class CLI(cmd.Cmd):
     help_l = help_list
 
     def do_listall(self, arg):
-#        todo.list_all()
         (status, output) = todo.list_all()
         if status == "usage":
             self.help_listall()
@@ -297,7 +296,14 @@ class CLI(cmd.Cmd):
     help_lsa = help_listall
 
     def do_listdate(self, arg):
-        todo.list_date()
+        (status, output) = todo.list_date()
+        if status == "usage":
+            self.help_listdate()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_lsd = do_listdate
 
     def help_listdate(self, doprint=1):
