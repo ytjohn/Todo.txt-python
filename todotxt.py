@@ -556,8 +556,6 @@ class TodoDotTxt():
 
         # lines = lines.split("\n")
         # list(map(self.add_todo, lines))  # Necessary for python 3000
-
-
     ### End new todo functions
 
     ### Start do/del functions
@@ -645,10 +643,9 @@ class TodoDotTxt():
         # todo: seem to have broken this - "no attribute 'pop'"
         logging.debug("args0 %s" % args[0])
 
-
         if args[0].isdigit():
             l = str(args)
-            (line_no, line) = l.split(' ',1)
+            (line_no, line) = l.split(' ', 1)
             line_no = int(line_no)
             logging.debug("ln: %s, %s" % (line_no, line))
             old_line, lines = self.separate_line(line_no)
@@ -691,13 +688,12 @@ class TodoDotTxt():
 
                 lines.insert(line_no - 1, new_line)
                 output = self.rewrite_and_post(line_no, old_line, new_line,
-                    lines)
+                                               lines)
                 return 'success', output
             else:
                 return 'usage', 'usage'
         else:
             return 'usage', 'usage'
-
 
     @usage('depri|dp NUMBER',
            ['Remove the priority of the item on line NUMBER.'])
@@ -726,7 +722,7 @@ class TodoDotTxt():
         item specified by the line number."""
         if args[0].isdigit():
             l = str(args)
-            (line_no, line) = l.split(' ',1)
+            (line_no, line) = l.split(' ', 1)
             line_no = int(line_no)
             logging.debug("ln: %s, %s" % (line_no, line))
             old_line, lines = self.separate_line(line_no)
@@ -963,7 +959,7 @@ class TodoDotTxt():
                                               pyversion=self.concat(
                                                 sys.version_info[:3], '.')
                                               )
-            )
+                 )
         return output
 #        sys.exit(0)
 

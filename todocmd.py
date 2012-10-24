@@ -49,7 +49,7 @@ term_colors = {
 
 todo_dir = _path("~/.todo")
 config = {
-    "DEBUG": False, # set to True to enable debug logging
+    "DEBUG": False,  # set to True to enable debug logging
     "TODO_DIR": todo_dir,
     "TODOTXT_DEFAULT_ACTION": "list",
     "TODOTXT_CFG_FILE": _pathc([todo_dir, "/config"]),
@@ -122,8 +122,6 @@ class CLI(cmd.Cmd):
             return 1
         elif status == 'success':
             print output
-
-
     do_a = do_add
 
     def help_add(self, doprint=1):
@@ -264,7 +262,7 @@ class CLI(cmd.Cmd):
     def do_list(self, arg):
 #        def list_todo(self, args=None, plain=False, no_priority=False):
         (status, output) = todo.list_todo(arg, todo.config["PLAIN"],
-            todo.config["NO_PRI"])
+                                          todo.config["NO_PRI"])
         if status == "usage":
             self.help_list()
         elif status == "success":
@@ -396,7 +394,6 @@ class CLI(cmd.Cmd):
         else:
             print "DEBUG is OFF."
 
-
     # create a helpall command
     def do_helpall(self, arg):
         names = self.get_names()
@@ -454,9 +451,11 @@ def showVersion(option=None, opt_str=None, val=None, parser=None):
     version = todo.version()
     print version
 
+
 def showVersionExit(option=None, opt_str=None, val=None, parser=None):
     showVersion()
     sys.exit(0)
+
 
 def enableDebug(option=None, opt_str=None, val=None, parser=None):
     #todo: this doesn't actually change it for todocmd.py
@@ -464,11 +463,13 @@ def enableDebug(option=None, opt_str=None, val=None, parser=None):
     logging.basicConfig(level=logging.DEBUG)
     logging.debug('todocmd.enableDebug: debug enabled')
 
+
 def disableDebug(option=None, opt_str=None, val=None, parser=None):
     #todo: this doesn't actually change it for todocmd.py
     todo.disableDebug()
     logging.basicConfig(level=logging.INFO)
     logging.info('todocmd.disableDebug: debug disabled')
+
 
 ### command line options
 def opt_setup():
