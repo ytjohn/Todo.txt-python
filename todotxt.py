@@ -942,7 +942,7 @@ class TodoDotTxt():
 #            print output
             totals = self.print_x_of_y(sorted, sorted)
 #            print totals
-            return 'succes', "%s\n%s" % (output, totals)
+            return 'success', "%s\n%s" % (output, totals)
         else:
             output = self._list_by_(*args)
             return 'success', output
