@@ -268,7 +268,7 @@ class CLI(cmd.Cmd):
     help_ls = help_list
     help_l = help_list
 
-    def do_listall(self):
+    def do_listall(self, arg):
         todo.list_all()
     do_lsa = do_listall
 
@@ -279,7 +279,7 @@ class CLI(cmd.Cmd):
         return usage
     help_lsa = help_listall
 
-    def do_listdate(self):
+    def do_listdate(self, arg):
         todo.list_date()
     do_lsd = do_listdate
 
@@ -290,7 +290,7 @@ class CLI(cmd.Cmd):
         return usage
     help_lsd = help_listdate
 
-    def do_listproj(self):
+    def do_listproj(self, arg):
         todo.list_project()
     do_lsp = do_listproj
 
@@ -301,7 +301,7 @@ class CLI(cmd.Cmd):
         return usage
     help_lsp = help_listproj
 
-    def do_listcon(self):
+    def do_listcon(self, arg):
         todo.list_context()
     do_lsc = do_listcon
 
