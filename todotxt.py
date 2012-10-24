@@ -985,8 +985,9 @@ class TodoDotTxt():
     def list_context(self):
         """Organizes items by context @context associated with them."""
         lines, sorted = self._list_("context", "@(\w+)")
-        print(self.concat(sorted)[:-1])
-        self.print_x_of_y(sorted, lines)
+        output = (self.concat(sorted)[:-1])
+        totals = self.print_x_of_y(sorted, lines)
+        return 'success', "%s\n%s" % (output, totals)
     ### End LP Functions
 
     ### Callback functions for options

@@ -332,7 +332,14 @@ class CLI(cmd.Cmd):
     help_lsp = help_listproj
 
     def do_listcon(self, arg):
-        todo.list_context()
+        (status, output) = todo.list_context()
+        if status == "usage":
+            self.help_listcon()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_lsc = do_listcon
 
     def help_listcon(self, doprint=1):
