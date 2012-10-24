@@ -314,7 +314,14 @@ class CLI(cmd.Cmd):
     help_lsd = help_listdate
 
     def do_listproj(self, arg):
-        todo.list_project()
+        (status, output) = todo.list_project()
+        if status == "usage":
+            self.help_listproj()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_lsp = do_listproj
 
     def help_listproj(self, doprint=1):

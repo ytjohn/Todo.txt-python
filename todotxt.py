@@ -976,8 +976,9 @@ class TodoDotTxt():
     def list_project(self):
         """Organizes items by project +prj they belong to."""
         lines, sorted = self._list_("project", "\+(\w+)")
-        print(self.concat(sorted)[:-1])
-        self.print_x_of_y(sorted, lines)
+        output = (self.concat(sorted)[:-1])
+        totals = self.print_x_of_y(sorted, lines)
+        return 'success', "%s\n%s" % (output, totals)
 
     @usage('listcon|lsc',
            ['Lists all items in your todo.txt file sorted by context.'])
