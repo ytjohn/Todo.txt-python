@@ -676,8 +676,6 @@ class TodoDotTxt():
             return 'success', output
         else:
             return 'usage', 'append NUMBER "text to append"'
-            # self.post_error('append', 'NUMBER', 'string')
-
 
     @usage('pri|p NUMBER [A-X]',
            ['Add priority specified (A, B, C, etc.) to item NUMBER.'])
@@ -756,7 +754,6 @@ class TodoDotTxt():
             return 'success', output
         else:
             return 'usage', 'append NUMBER "text to append"'
-            # self.post_error('append', 'NUMBER', 'string')
     ### End Post-production todo functions
 
 #    ### HELP
