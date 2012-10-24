@@ -991,8 +991,8 @@ class TodoDotTxt():
     ### End LP Functions
 
     ### Callback functions for options
-    def version(self, option, opt, value, parser):
-        print(
+    def version(self, option=None, opt=None, value=None, parser=None):
+        output = (
     """TODO.TXT Command Line Interface v:{version}-{id}
 
     First release:
@@ -1012,7 +1012,8 @@ class TodoDotTxt():
                                                 sys.version_info[:3], '.')
                                               )
             )
-        sys.exit(0)
+        return output
+#        sys.exit(0)
 
     def toggle_opt(self, option, opt_str, val, parser):
         """

@@ -439,6 +439,17 @@ class CLI(cmd.Cmd):
         return help
     help_ha = help_helpall
 
+    def do_version(self, arg):
+        showVersion()
+
+
+def showVersion(option=None, opt_str=None, val=None, parser=None):
+    version = todo.version()
+    print version
+
+def showVersionExit(option=None, opt_str=None, val=None, parser=None):
+    showVersion()
+    sys.exit(0)
 
 def enableDebug(option=None, opt_str=None, val=None, parser=None):
     #todo: this doesn't actually change it for todocmd.py
@@ -491,7 +502,7 @@ def opt_setup():
                          "for scripting"
                     )
     opts.add_option("-V", "--version", action="callback",
-                    callback=todo.version,
+                    callback=showVersionExit,
                     nargs=0,
                     help="Print version, license, and credits"
                     )
