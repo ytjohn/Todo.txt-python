@@ -693,16 +693,19 @@ class TodoDotTxt():
     def prioritize_todo(self, args):
         """Add or modify the priority of the specified item."""
         # TODO: looks like I broke this -ytjohn
-        print args
-        args = [arg.upper() for arg in args]
-        if args[1:] and args[0].isdigit() and len(args[1]) == 1:
-            if args[1] in self.config['PRIORITIES']:
-                line_no = int(args.pop(0))
+        line_no, priority = args.split(' ', 1)
+        priority = priority.upper()
+        line_no = int(line_no)
+        print priority
+        if len(priority) is 1 and line_no >= 0:
+            if priority in self.config['PRIORITIES']:
+#                line_no = int(args.pop(0))
                 old_line, lines = self.separate_line(line_no)
                 if self.test_separated(old_line, lines, line_no):
                     return
 
-                new_pri = self.concat(["(", args[0], ") "])
+                new_pri = "(%s) " % priority
+#                new_pri = self.concat(["(", priority, ") "])
                 r = re.match("(\([A-X]\)\s).*", old_line)
                 if r:
                     new_line = re.sub(re.escape(r.groups()[0]), new_pri,
@@ -711,11 +714,15 @@ class TodoDotTxt():
                     new_line = self.concat([new_pri, old_line])
 
                 lines.insert(line_no - 1, new_line)
-                self.rewrite_and_post(line_no, old_line, new_line, lines)
+                output = self.rewrite_and_post(line_no, old_line, new_line,
+                    lines)
+                return 'success', output
             else:
-                self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
+#                self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
+                return 'usage', 'usage'
         else:
-            self.post_error('pri', 'NUMBER', 'capital letter in [A-X]')
+            return 'usage', 'usage'
+
 
     @usage('depri|dp NUMBER',
            ['Remove the priority of the item on line NUMBER.'])

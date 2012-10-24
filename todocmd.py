@@ -58,7 +58,7 @@ config = {
     "TMP_FILE": "",
     "REPORT_FILE": "",
     "USE_GIT": False,
-    "PLAIN": True,
+    "PLAIN": False,
     "NO_PRI": False,
     "PRE_DATE": False,
     "INVERT": False,
@@ -74,6 +74,10 @@ config = {
     "SHELL": False,
     "SILENT": False,
 }
+
+for p in priorities:
+    config["PRI_{0}".format(p)] = "default"
+del(p, todo_dir)
 
 todo = TodoDotTxt(config)
 
@@ -181,13 +185,9 @@ class CLI(cmd.Cmd):
             self.help_append()
         elif status == "success":
             print output
-#            for out in output:
-#                print out
         else:
             print "unknown %s" % status
             print output
-#            for out in output:
-#                print out
     do_app = do_append
 
     def help_append(self, doprint=1):
@@ -198,7 +198,14 @@ class CLI(cmd.Cmd):
     help_app = help_append
 
     def do_pri(self, arg):
-        todo.prioritize_todo(arg)
+        (status, output) = todo.prioritize_todo(arg)
+        if status == "usage":
+            self.help_pri()
+        elif status == "success":
+            print output
+        else:
+            print "unknown %s" % status
+            print output
     do_p = do_pri
 
     def help_pri(self, doprint=1):
