@@ -108,11 +108,13 @@ config = {
         "REVISION": revision
         }
 
-DoToDo = TodoDotTxt(config)
-
 for p in priorities:
     config["PRI_{0}".format(p)] = "default"
 del(p, todo_dir)
+
+DoToDo = TodoDotTxt(config)
+
+
 
 
 ### Helper Functions
