@@ -532,7 +532,6 @@ class TodoDotTxt():
             fd.write(self.concat([line, "\n"]))
 
         s = "TODO: '{0}' added on line {1}.".format(line, l)
-#        print(s)
         if self.config["USE_GIT"]:
             self._git_commit([self.config["TODO_FILE"]], s)
         return ('success', s)
@@ -576,7 +575,6 @@ class TodoDotTxt():
             # logging.debug("do_todo digit x: %s" % line)
             status = 'usage'
             return(status, 'Usage: do item#')
-            # print("Usage: {0} do item#".format(self.config["TODO_PY"]))
         else:
             # logging.debug("do_todo string x: %s" % line)
             removed, lines = self.separate_line(int(line))
@@ -602,11 +600,7 @@ class TodoDotTxt():
 
             output = [removed[:-1],
                       "TODO: Item %s marked as done" % line]
-            #print(removed[:-1])
-            #print("TODO: Item {0} marked as done.".format(line))
             return "success", output
-#            for out in output:
-#                print out
 #            if self.config["USE_GIT"]:
 #                self._git_commit(files, removed)
 
@@ -616,7 +610,6 @@ class TodoDotTxt():
         """Delete an item without marking it as done."""
         if not line.isdigit():
             return "usage", "Usage: del item#"
-            #print("Usage: {0} (del|rm) item#".format(self.config["TODO_PY"]))
         else:
             # todo: make sure line exist before deleting
             removed, lines = self.separate_line(int(line))
@@ -629,8 +622,6 @@ class TodoDotTxt():
             removed = "'{0}' deleted.".format(removed[:-1])
             output = [removed[:-1],
                       "TODO: Item %s deleted." % line]
-#            print(removed)
-#            print("TODO: Item {0} deleted.".format(line))
             return "success", output
 #            if self.config["USE_GIT"]:
 #                self._git_commit([self.config["TODO_FILE"]], removed)
@@ -643,8 +634,6 @@ class TodoDotTxt():
         new_line = new_line.rstrip()
         print_str = "TODO: Item {0} changed from '{1}' to '{2}'.".format(
             item_no, old_line, new_line)
-        # todo: need to remove the print command below
-        # print(print_str)
         if self.config["USE_GIT"]:
             self._git_commit([self.config["TODO_FILE"]], print_str)
         return print_str
@@ -904,9 +893,7 @@ class TodoDotTxt():
         if not args:
             lines, sorted = self._list_("pri", "")
             output = self.concat(sorted)[:-1]
-#            print output
             totals = self.print_x_of_y(sorted, sorted)
-#            print totals
             return 'success', "%s\n%s" % (output, totals)
         else:
             output = self._list_by_(*args)
@@ -1001,31 +988,33 @@ class TodoDotTxt():
     ### End callback functions
 
     ### Add-on functionality
-    def load_actions(self):
-        if self.config.get("TODO_ACTIONS_DIR"):
-            action_dir = self.config["TODO_ACTIONS_DIR"]
-        else:
-            action_dir = self._pathc([self.config["TODO_DIR"], "/actions"])
-        actions = self.config["ACTIONS"].split(",")
-
-        if not (os.path.exists(action_dir) and any(actions)):
-            return
-
-        sys.path.insert(0, action_dir)
-
-        for action in actions:
-            try:
-                tmp = __import__(action)
-                if hasattr(tmp, "commands"):
-                    self.update_commands(tmp.commands)
-                else:
-                    print("Error loading {0}: No commands found.".format(
-                        action))
-            except ImportError:
-                print("No module named {0} available.".format(action))
-            except ValueError:
-                # For some reason there is a '' in the list `actions`
-                pass
+    ### todo: commenting out until I figure how I want to load actions -
+    # ytjohn
+#    def load_actions(self):
+#        if self.config.get("TODO_ACTIONS_DIR"):
+#            action_dir = self.config["TODO_ACTIONS_DIR"]
+#        else:
+#            action_dir = self._pathc([self.config["TODO_DIR"], "/actions"])
+#        actions = self.config["ACTIONS"].split(",")
+#
+#        if not (os.path.exists(action_dir) and any(actions)):
+#            return
+#
+#        sys.path.insert(0, action_dir)
+#
+#        for action in actions:
+#            try:
+#                tmp = __import__(action)
+#                if hasattr(tmp, "commands"):
+#                    self.update_commands(tmp.commands)
+#                else:
+#                    print("Error loading {0}: No commands found.".format(
+#                        action))
+#            except ImportError:
+#                print("No module named {0} available.".format(action))
+#            except ValueError:
+#                # For some reason there is a '' in the list `actions`
+#                pass
     ### End Add-on functionality
 
     def execute_commands(self, args):
