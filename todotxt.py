@@ -756,24 +756,6 @@ class TodoDotTxt():
             return 'usage', 'append NUMBER "text to append"'
     ### End Post-production todo functions
 
-#    ### HELP
-#    @usage('help|h', ['Display this message and exit.'])
-#    def cmd_help(self):
-#        print(self.concat(["Use", self.config["TODO_PY"],
-#                           "-h for option help\n"], " "))
-#        print(self.concat(["Usage:", self.config["TODO_PY"],
-#                          "command [arg(s)]"], " "))
-#        d = {}
-#        for (key, val) in self.get_commands().items():
-#            d[val[1]] = (key, val[1])
-#            # By using the function, only one command name will be added
-#        cmds = sorted(d.values())  # Only get the tuples
-#        # TODO: have this use the usage class
-#        for (_, f) in cmds:
-#            print(f.__usage__)
-#        sys.exit(0)
-#    ### HELP
-
     ### List Printing Functions
     def format_lines(self, color_only=False, include_done=False):
         """Take in a list of lines to do, return them formatted with the
